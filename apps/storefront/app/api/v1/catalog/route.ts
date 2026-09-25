@@ -19,15 +19,16 @@ function fail(status: number, code: string, requestId: string) {
 export async function GET(request: NextRequest) {
   const requestId = crypto.randomUUID()
   const key = process.env.MEDUSA_PUBLISHABLE_KEY
+  const serviceKey = process.env.BFF_SERVICE_KEY
   const backendUrl = process.env.BACKEND_URL ??
     (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:9000' : undefined)
-  if (!key || !backendUrl) return fail(503, 'CATALOG_CONFIG_UNAVAILABLE', requestId)
+  if (!key || !serviceKey || !backendUrl) return fail(503, 'CATALOG_CONFIG_UNAVAILABLE', requestId)
 
   try {
     const upstream = new URL('/store/catalog-v1', backendUrl)
     upstream.search = request.nextUrl.searchParams.toString()
     const response = await fetch(upstream, {
-      headers: { 'x-publishable-api-key': key },
+      headers: { 'x-publishable-api-key': key, 'x-bg-service-key': serviceKey },
       cache: 'no-store',
       signal: AbortSignal.timeout(10_000),
     })

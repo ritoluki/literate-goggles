@@ -1,9 +1,13 @@
 import { spawn, spawnSync } from 'node:child_process'
+import { randomBytes } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 
 const healthUrl = 'http://127.0.0.1:9000/health'
 const catalogBffUrl = 'http://127.0.0.1:3000/api/v1/catalog?limit=1'
 const deadlineMs = 150_000
+const serviceKey = process.env.BFF_SERVICE_KEY ?? randomBytes(32).toString('hex')
+const csrfSecret = process.env.CSRF_SECRET ?? randomBytes(32).toString('hex')
+const authEnv = { ...process.env, BFF_SERVICE_KEY: serviceKey, CSRF_SECRET: csrfSecret }
 
 async function isHealthy() {
   try {
@@ -57,6 +61,9 @@ function stopProcessTree(child) {
 let backend
 let storefront
 try {
+  if (await isHealthy() && !process.env.BFF_SERVICE_KEY) {
+    throw new Error('Stop existing Medusa or supply its BFF_SERVICE_KEY for integration tests')
+  }
   const dbCheck = spawnSync('docker', [
     'compose', '-f', 'infra/compose.dev.yml', 'exec', '-T', 'postgres',
     'psql', '-v', 'ON_ERROR_STOP=1', '-U', 'bangon', '-d', 'bangon',
@@ -77,6 +84,7 @@ try {
       cwd: process.cwd(),
       detached: process.platform !== 'win32',
       stdio: 'inherit',
+      env: authEnv,
     })
     await waitForBackend(backend)
   }
@@ -90,6 +98,7 @@ try {
   const catalog = spawnSync(process.execPath, ['scripts/check-catalog-http.mjs'], {
     cwd: process.cwd(),
     stdio: 'inherit',
+    env: authEnv,
   })
   if (catalog.error) throw catalog.error
   if (catalog.status !== 0) throw new Error('Medusa catalog checks failed')
@@ -114,6 +123,8 @@ try {
       stdio: 'inherit',
       env: {
         ...process.env,
+        BFF_SERVICE_KEY: serviceKey,
+        CSRF_SECRET: csrfSecret,
         MEDUSA_PUBLISHABLE_KEY: key,
         BACKEND_URL: 'http://127.0.0.1:9000',
       },
@@ -125,7 +136,14 @@ try {
     stdio: 'inherit',
   })
   if (bff.error) throw bff.error
-  process.exitCode = bff.status ?? 1
+  if (bff.status !== 0) throw new Error('BFF catalog checks failed')
+  const session = spawnSync(process.execPath, ['scripts/check-session-http.mjs'], {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+    env: authEnv,
+  })
+  if (session.error) throw session.error
+  process.exitCode = session.status ?? 1
 } catch (error) {
   console.error(`FAIL integration runner: ${error.message}`)
   process.exitCode = 1

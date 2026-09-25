@@ -16,8 +16,13 @@ function localPublishableKey(titleSuffix) {
 const demoKey = localPublishableKey('Demo Storefront Key')
 const starterKey = localPublishableKey('Default Publishable API Key')
 const base = 'http://127.0.0.1:9000/store/catalog-v1'
-const get = (path, key) => fetch(base + path, {
-  headers: key ? { 'x-publishable-api-key': key } : {},
+const serviceKey = process.env.BFF_SERVICE_KEY
+if (!serviceKey) throw new Error('BFF_SERVICE_KEY is required for catalog HTTP check')
+const get = (path, key, includeService = true) => fetch(base + path, {
+  headers: {
+    ...(key ? { 'x-publishable-api-key': key } : {}),
+    ...(includeService ? { 'x-bg-service-key': serviceKey } : {}),
+  },
   signal: AbortSignal.timeout(30_000),
 })
 
@@ -41,4 +46,6 @@ const wrongChannel = await get('', starterKey)
 assert.equal(wrongChannel.status, 403)
 const noKey = await get('')
 assert(noKey.status >= 400 && noKey.status < 500)
-console.log('PASS catalog HTTP: 20 eligible products; full-set pages; invalid sort and wrong-channel key denied')
+const direct = await get('', demoKey, false)
+assert.equal(direct.status, 403, 'publishable key alone must not bypass BFF')
+console.log('PASS catalog HTTP: 20 eligible products; pages; invalid sort/channel and direct Store bypass denied')

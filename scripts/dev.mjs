@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { randomBytes } from 'node:crypto'
 
 let publishableKey = process.env.MEDUSA_PUBLISHABLE_KEY
 if (!publishableKey) {
@@ -20,11 +21,23 @@ if (!publishableKey.startsWith('pk_')) {
 }
 
 const args = ['--parallel', '--filter', '@ban-gon/backend', '--filter', '@ban-gon/storefront', 'run', 'dev']
+const serviceKey = process.env.BFF_SERVICE_KEY ??
+  (process.env.APP_MODE === 'demo' || !process.env.APP_MODE ? randomBytes(32).toString('hex') : undefined)
+const csrfSecret = process.env.CSRF_SECRET ??
+  (process.env.APP_MODE === 'demo' || !process.env.APP_MODE ? randomBytes(32).toString('hex') : undefined)
+if (!serviceKey || serviceKey.length < 32) {
+  throw new Error('BFF_SERVICE_KEY must contain at least 32 characters')
+}
+if (!csrfSecret || csrfSecret.length < 32) {
+  throw new Error('CSRF_SECRET must contain at least 32 characters')
+}
 const result = spawnSync('pnpm', args, {
   cwd: process.cwd(),
   env: {
     ...process.env,
     MEDUSA_PUBLISHABLE_KEY: publishableKey,
+    BFF_SERVICE_KEY: serviceKey,
+    CSRF_SECRET: csrfSecret,
     BACKEND_URL: process.env.BACKEND_URL ?? 'http://127.0.0.1:9000',
   },
   stdio: 'inherit',

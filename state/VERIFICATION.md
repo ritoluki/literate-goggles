@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-25**. Pushed base commit: `03918a0b0f1ff4559dc3456f7276adf1a257ed75`; phần T011 hoàn thiện sau commit còn chưa commit/push.
+Lần xác minh: **2026-09-25**. Pushed base commit: `b215df2`; T012 đang ở worktree.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -20,6 +20,11 @@ Lần xác minh: **2026-09-25**. Pushed base commit: `03918a0b0f1ff4559dc3456f72
 | T011 Medusa+BFF HTTP | PASS | PostgreSQL/Redis/Mailpit/Medusa/Next local | `pnpm test:integration` cold start exit 0 (2026-09-25) | 20 eligible, 12+8 trang, wrong-channel key403, missing key4xx, invalid sort400, BFF no-store; runner tự stop cả hai app |
 | T011 product freshness | PASS | Demo fixture, Medusa updateProductsWorkflow | `pnpm --filter @ban-gon/backend run verify:catalog-freshness` (lệnh CLI tương đương) exit 0 | Title đổi phản ánh ở Query ngay; original được khôi phục trong finally và xác nhận sau restore |
 | T011 price/inventory edit freshness | NOT_RUN | — | — | Chưa chạy biến động giá/tồn qua Admin workflow; không dùng catalog read làm quyền quyết định cart/checkout |
+| T012 service auth/session HTTP | PASS | Medusa 2.21.1 + Next 16.3.5 + PostgreSQL local | `pnpm test:integration` exit 0 | 6 raw Store paths với publishable key/no Origin trả 403; BFF session Origin/body strict; cookie HttpOnly, SameSite Lax; JSON không lộ raw token; DB chỉ lưu SHA-256 hash |
+| T012 ownership helper unit | PASS | Jest 29 | `pnpm test:unit` exit 0 | 5 session cases: malformed, expired, cart đúng/sai, unbound và middleware thiếu session; tổng backend 9/9 |
+| T012 Redis session limiter | PASS | Redis 7.4.5 local | `pnpm --filter @ban-gon/backend run verify:session-rate-limit` exit 0 | Synthetic IP: 10 lần đầu allow, lần 11 deny trong cùng window; không tạo DB session |
+| T012 full verify | PASS | Node/Medusa/Next/Docker local | `pnpm verify` exit 0 (2026-09-25) | doctor, zero-warning lint, typecheck, unit backend 9/9, rules fixture 60, integration DB/HTTP, Next+Medusa/admin build |
+| T012 cart cross-session/CSRF write | NOT_RUN | — | — | T013 chưa có cart write; phải chạy AT-08/AT-10/AT-52 với giỏ thực, không coi helper unit là đủ |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

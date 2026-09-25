@@ -27,3 +27,4 @@ ADR cần thiết khi thay nền tảng, ranh giới auth, chính sách money, p
 Dùng `templates/ADR.md`, đặt file trong `docs/adr/`, link ở đây.
 
 - [ADR-0002: Catalog đọc mới, chưa có snapshot ứng dụng](../docs/adr/0002-catalog-fresh-read.md) — local P2, cần đo lại ở P6 trước staging.
+- [ADR-0003: BFF service-auth và guest session](../docs/adr/0003-bff-service-session-boundary.md) — local P2, cart/order vẫn phải owner-check theo session.
