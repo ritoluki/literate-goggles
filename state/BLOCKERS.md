@@ -25,4 +25,4 @@ Hiện không có blocker kỹ thuật đang mở cho local P2.
 ## Gaps không phải blocker
 
 - E2E browser, security, load, backup/restore và live Jev vẫn NOT_RUN theo phase tương ứng.
-- Chưa có git repository nên chưa thể ghi implementation SHA hoặc chạy CI remote; workflow CI local đã được tạo nhưng chưa có run trên GitHub.
+- Git đã khởi tạo và initial commit `1b6586320a8aaf4e4576bc3ac4c1d93bf0335be9` đã push lên `origin/main`. Remote CI run chưa xác minh trong phiên này.

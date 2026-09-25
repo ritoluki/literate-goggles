@@ -21,7 +21,7 @@
     "dev:backend": "pnpm --filter @ban-gon/backend run dev",
     "lint": "pnpm --recursive --if-present run lint",
     "typecheck": "pnpm --recursive --if-present run typecheck",
-    "test:unit": "node --test tests/unit/**/*.test.mjs",
+    "test:unit": "node --test tests/unit/**/*.test.mjs && pnpm --filter @ban-gon/backend run test:unit",
     "test:integration": "node scripts/run-integration.mjs",
     "test:e2e": "node scripts/check-service-dependencies.mjs --e2e",
     "test:eval:offline": "node scripts/rules-eval.mjs",

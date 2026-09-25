@@ -14,9 +14,9 @@ Không hỏi owner phê duyệt từng task local. T032 có thể BLOCKED bởi 
 | T006 | P1 | Khởi tạo CI và bộ runner kiểm thử | T005 | CI pipeline; test projects; coverage config | Unit/contract/integration smoke thực chạy | FR-18 | AT-58 | DONE |
 | T007 | P1 | Hoàn thành root commands/doctor | T006 | scripts theo docs/09 | Mỗi script có implementation, help, failure exit | FR-20 | AT-58 | DONE |
 | T008 | P2 | Map region/channel/pricing/inventory API | T007 | state/MEDUSA-API-MAP.md phần catalog | Queries thật có giá/availability đúng context | FR-02,FR-03 | AT-02,AT-03,AT-17 | DONE |
-| T009 | P2 | Module dữ liệu session/ledger/grant/preferences/settings | T008 | Migrations/module links/repositories | Unique constraints; không ORM ngoài workflow tạo order | FR-04,FR-09 | AT-08,AT-22 | NOT_STARTED |
-| T010 | P2 | Seed catalog/config idempotent | T009 | Seed CLI map fixture→Medusa | Seed2 lần24/48; guards live; không reset tồn sau orders | FR-11,FR-19 | AT-01,AT-02 | NOT_STARTED |
-| T011 | P2 | Catalog adapter toàn tập và invalidation | T010 | Catalog DTO/retrieval/snapshot/events | Filter trước phân trang; drafts/không giá excluded | FR-02,FR-03 | AT-02,AT-03,AT-04,AT-43 | NOT_STARTED |
+| T009 | P2 | Module dữ liệu session/ledger/grant/preferences/settings | T008 | Migrations/module links/repositories | Unique constraints; không ORM ngoài workflow tạo order | FR-04,FR-09 | AT-08,AT-22 | DONE |
+| T010 | P2 | Seed catalog/config idempotent | T009 | Seed CLI map fixture→Medusa | Seed2 lần24/48; guards live; không reset tồn sau orders | FR-11,FR-19 | AT-01,AT-02 | DONE |
+| T011 | P2 | Catalog adapter toàn tập và invalidation | T010 | Catalog DTO/retrieval/snapshot/events | Filter trước phân trang; drafts/không giá excluded | FR-02,FR-03 | AT-02,AT-03,AT-04,AT-43 | IN_PROGRESS |
 | T012 | P2 | Session + service-auth + ownership middleware | T009 | BFF middleware/backend guards | Chặn rawStore bypass; session/cookie không leak | FR-04,FR-09 | AT-08,AT-09,AT-10,AT-52 | NOT_STARTED |
 | T013 | P2 | Cart + promotion API | T011,T012 | BFF cart routes + integration tests | Validate quantities/strict fields/engine total | FR-04,FR-05 | AT-07,AT-11,AT-12,AT-16 | NOT_STARTED |
 | T014 | P2 | Shipping/COD configuration + API map | T013 | Shipping/tax demo; COD adapter registry map | 30k/500k thresholds; order chưa paid | FR-07,FR-08 | AT-17,AT-18,AT-19,AT-26 | NOT_STARTED |

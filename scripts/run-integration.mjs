@@ -1,4 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 
 const healthUrl = 'http://127.0.0.1:9000/health'
 const deadlineMs = 150_000
@@ -35,6 +36,17 @@ function stopProcessTree(child) {
 
 let backend
 try {
+  const dbCheck = spawnSync('docker', [
+    'compose', '-f', 'infra/compose.dev.yml', 'exec', '-T', 'postgres',
+    'psql', '-v', 'ON_ERROR_STOP=1', '-U', 'bangon', '-d', 'bangon',
+  ], {
+    cwd: process.cwd(),
+    input: readFileSync('apps/backend/integration-tests/db/commerce-identity.sql'),
+    stdio: ['pipe', 'inherit', 'inherit'],
+  })
+  if (dbCheck.error) throw dbCheck.error
+  if (dbCheck.status !== 0) throw new Error('Commerce identity database checks failed')
+
   if (!(await isHealthy())) {
     const command = process.platform === 'win32' ? 'cmd.exe' : 'pnpm'
     const args = process.platform === 'win32'

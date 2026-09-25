@@ -21,9 +21,9 @@
     "typecheck": "tsc --noEmit",
     "seed:demo": "medusa exec ./src/scripts/seed-demo-products.ts",
     "verify:commerce-context": "medusa exec ./src/scripts/verify-commerce-context.ts",
-    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
+    "test:integration:http": "node ./scripts/run-jest.mjs integration:http",
+    "test:integration:modules": "node ./scripts/run-jest.mjs integration:modules",
+    "test:unit": "node ./scripts/run-jest.mjs unit"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.21.1",

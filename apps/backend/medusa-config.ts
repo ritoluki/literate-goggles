@@ -16,6 +16,9 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: './src/modules/commerce-identity',
+    },
+    {
       resolve: "@medusajs/medusa/caching",
       options: {
         providers: [

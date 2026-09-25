@@ -40,7 +40,12 @@ type FixtureProduct = {
   variants: FixtureVariant[]
 }
 
-type CatalogFixture = { schemaVersion: number; products: FixtureProduct[] }
+type CatalogFixture = {
+  schemaVersion: number
+  kind: string
+  notForLiveImport: boolean
+  products: FixtureProduct[]
+}
 
 const DEMO_CHANNEL_NAME = "Bàn Gọn Storefront (Demo)"
 const DEMO_LOCATION_NAME = "Bàn Gọn Demo Warehouse"
@@ -51,13 +56,18 @@ const categoryName = (key: string) => key.split("-")
   .join(" ")
 
 export default async function seedDemoProducts({ container }: ExecArgs) {
+  if (!['demo', 'test', 'staging'].includes(process.env.APP_MODE ?? '')) {
+    throw new MedusaError(MedusaError.Types.NOT_ALLOWED,
+      'Demo seed requires APP_MODE=demo|test|staging; live and unset mode are forbidden.')
+  }
+
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const link = container.resolve(ContainerRegistrationKeys.LINK)
   const fixturePath = resolve(process.cwd(), "../../fixtures/catalog.seed.json")
   const fixture = JSON.parse(await readFile(fixturePath, "utf8")) as CatalogFixture
 
-  if (fixture.schemaVersion !== 1) {
+  if (fixture.schemaVersion !== 1 || fixture.kind !== 'synthetic-demo-fixture' || fixture.notForLiveImport !== true) {
     throw new MedusaError(MedusaError.Types.INVALID_DATA, `Unsupported catalog fixture schema: ${fixture.schemaVersion}`)
   }
 
@@ -207,6 +217,31 @@ export default async function seedDemoProducts({ container }: ExecArgs) {
     fields: ["handle"],
   })
   const existingHandles = new Set(existingProducts.map((product) => product.handle))
+  const { data: existingDetails } = await query.graph({
+    entity: 'product',
+    fields: ['handle', 'metadata', 'variants.sku'],
+    pagination: { skip: 0, take: 1000 },
+  })
+  const byHandle = new Map(existingDetails.map((product) => [product.handle, product]))
+  const skuOwners = new Map(existingDetails.flatMap((product) =>
+    (product.variants ?? []).filter((variant) => variant?.sku)
+      .map((variant) => [variant!.sku!, product.handle] as const)
+  ))
+  for (const product of fixture.products) {
+    const existing = byHandle.get(product.handle)
+    if (existing) {
+      const actualSkus = new Set((existing.variants ?? []).map((variant) => variant?.sku))
+      if (existing.metadata?.seed_key !== product.seedKey ||
+        actualSkus.size !== product.variants.length ||
+        product.variants.some((variant) => !actualSkus.has(variant.sku))) {
+        throw new MedusaError(MedusaError.Types.INVALID_DATA,
+          'Existing demo handle conflicts with fixture; refusing to overwrite catalog or stock.')
+      }
+    } else if (product.variants.some((variant) => skuOwners.has(variant.sku))) {
+      throw new MedusaError(MedusaError.Types.INVALID_DATA,
+        'A fixture SKU is already owned by another product; refusing partial seed.')
+    }
+  }
   const productsToCreate = fixture.products.filter((product) => !existingHandles.has(product.handle))
 
   if (productsToCreate.length) {
@@ -250,17 +285,28 @@ export default async function seedDemoProducts({ container }: ExecArgs) {
   const quantityBySku = new Map(fixture.products.flatMap((product) =>
     product.variants.map((variant) => [variant.sku, variant.inventoryQuantity] as const)
   ))
-  const createdHandles = new Set(productsToCreate.map((product) => product.handle))
+  const fixtureHandles = new Set(fixture.products.map((product) => product.handle))
   const { data: seededProducts } = await query.graph({
     entity: "product",
     fields: ["handle", "variants.sku", "variants.inventory_items.inventory_item_id"],
   })
+  const { data: existingLevels } = await query.graph({
+    entity: 'inventory_level',
+    fields: ['inventory_item_id', 'location_id'],
+    pagination: { skip: 0, take: 1000 },
+  })
+  const existingLevelKeys = new Set(existingLevels.map((level) =>
+    [level.inventory_item_id, level.location_id].join(':')
+  ))
   const inventoryLevels = seededProducts
-    .filter((product) => createdHandles.has(product.handle))
+    .filter((product) => fixtureHandles.has(product.handle))
     .flatMap((product) => product.variants ?? [])
     .filter((variant) => Boolean(variant?.sku))
     .flatMap((variant) => (variant.inventory_items ?? [])
       .filter((inventoryItem) => Boolean(inventoryItem?.inventory_item_id))
+      .filter((inventoryItem) => !existingLevelKeys.has(
+        [inventoryItem!.inventory_item_id, demoLocationId].join(':')
+      ))
       .map((inventoryItem) => ({
         location_id: demoLocationId,
         inventory_item_id: inventoryItem!.inventory_item_id!,
