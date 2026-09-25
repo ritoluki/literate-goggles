@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-26**. T014 pushed commit: `40234a6`; T015 hoàn tất local, chưa commit/push.
+Lần xác minh: **2026-09-26**. T015 pushed commit: `8f5370a`; T016 hoàn tất local, chưa commit/push.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -37,6 +37,8 @@ Lần xác minh: **2026-09-26**. T014 pushed commit: `40234a6`; T015 hoàn tất
 | T015 layout/navigation browser | PASS | Playwright Core 1.63.0 + local Chrome + Next 16.3.5 | `pnpm test:layout` exit 0 | 360/390/768/1280/1440 CSS viewports, no horizontal overflow; mobile native modal opens, Escape closes, focus stays inside and returns to trigger; desktop category disclosure Escape/focus restore |
 | T015 visual evidence | PASS | Local Chrome headless | `state/artifacts/t015-mobile.png`, `state/artifacts/t015-desktop.png` | Clean mobile/desktop home screenshots reviewed; current home cards remain synthetic and are replaced by T016 catalog |
 | T015 lint/typecheck/build | PASS | Node 22.13.0; XDG config isolated under workspace for Medusa CLI | `pnpm lint`, `pnpm typecheck`, `pnpm build` exit 0 | Medusa and Next lint/build, workspace TS checks all pass; no external user config accessed |
+| T016 browser catalog acceptance | PASS | Playwright Core 1.63.0; local Chrome; Next 16.3.5 + Medusa 2.21.1 + PostgreSQL | `pnpm test:layout` exit 0 | Five widths no overflow; home loads 8 live demo catalog cards; catalog has 20 eligible/12+8 pages; Vietnamese accent search; combined category/color/price/stock returns expected single product; sort + browser back; simulated BFF 503 shows error and no empty-results claim |
+| T016 full verification | PASS | Node 22.13.0; pnpm 12.6.0; Docker/PostgreSQL/Redis/Mailpit; XDG config isolated in workspace | `pnpm verify` exit 0 | Doctor, lint no issues, typecheck, unit 9/9, offline 60, integration catalog/session/cart/promotion/shipping/COD, Next/Medusa/admin build PASS |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

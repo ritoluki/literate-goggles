@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker kỹ thuật đang mở cho local P3. T015 hoàn tất; tiếp tục T016.
+Hiện không có blocker kỹ thuật đang mở cho local P3. T015–T016 hoàn tất; tiếp tục T017.
 
 ## Blocker đã giải quyết
 

@@ -21,7 +21,7 @@ Không hỏi owner phê duyệt từng task local. T032 có thể BLOCKED bởi 
 | T013 | P2 | Cart + promotion API | T011,T012 | BFF cart routes + integration tests | Validate quantities/strict fields/engine total | FR-04,FR-05 | AT-07,AT-11,AT-12,AT-16 | DONE |
 | T014 | P2 | Shipping/COD configuration + API map | T013 | Shipping/tax demo; COD adapter registry map | 30k/500k thresholds; order chưa paid | FR-07,FR-08 | AT-17,AT-18,AT-19,AT-26 | DONE |
 | T015 | P3 | Design system/layout/navigation | T007 | Tokens/components/layout | Responsive mobile/keyboard/focus/empty/error states | FR-01,FR-16 | AT-44,AT-45 | DONE |
-| T016 | P3 | Home/catalog/search/filter URL | T011,T015 | Storefront routes/catalog state | URL stable/back; full filtering; error not empty | FR-01,FR-02 | AT-04,AT-05,AT-06 | NOT_STARTED |
+| T016 | P3 | Home/catalog/search/filter URL | T011,T015 | Storefront routes/catalog state | URL stable/back; full filtering; error not empty | FR-01,FR-02 | AT-04,AT-05,AT-06 | DONE |
 | T017 | P3 | PDP variants/images/availability | T016 | PDP and variant picker | Variant price consistent; sold-out not addable | FR-03 | AT-03,AT-14,AT-51 | NOT_STARTED |
 | T018 | P3 | Cart UI và race-safe mutations | T013,T017 | Cart page/badge; request sequence guards | Refresh persists; late responses not overwrite | FR-04,FR-05 | AT-07,AT-11,AT-16 | NOT_STARTED |
 | T019 | P3 | Policies/demo banner/SEO/a11y cơ bản | T018 | Draft policy routes; robots/sitemap metadata | Demo facts labeled; staging noindex | FR-15,FR-16,FR-19 | AT-44,AT-45,AT-46,AT-60 | NOT_STARTED |

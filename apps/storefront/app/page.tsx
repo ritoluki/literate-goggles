@@ -1,12 +1,17 @@
-const demoProducts = [
-  { title: 'Desk mat tối giản', price: '189.000đ', category: 'Bàn làm việc' },
-  { title: 'Khay gom dây', price: '129.000đ', category: 'Gọn dây' },
-  { title: 'Giá đỡ laptop gỗ', price: '279.000đ', category: 'Công thái học' },
-];
+import Link from 'next/link';
+import { FeaturedProducts } from './components/catalog-view';
+
+const featuredCategories = [
+  ['desk-mat', 'Thảm bàn', 'Tạo mặt bàn gọn gàng'],
+  ['laptop-stand', 'Giá đỡ laptop', 'Nâng màn hình vừa tầm'],
+  ['cable-organizer', 'Gọn dây', 'Sắp xếp dây dễ tìm'],
+  ['stationery', 'Văn phòng phẩm', 'Những món nhỏ cần thiết'],
+] as const;
 
 export default function HomePage() {
   return <div className="container">
     <section className="hero"><p className="eyebrow">SHOP DEMO · VND · COD THỬ NGHIỆM</p><h1>Góc bàn gọn, đầu óc nhẹ hơn.</h1><p>Phụ kiện nhỏ giúp bạn làm việc thoải mái và dễ tập trung hơn.</p><a className="button" href="/san-pham">Xem sản phẩm</a></section>
-    <section className="section"><div className="section-heading"><div><p className="eyebrow">GỢI Ý KHỞI ĐẦU</p><h2>Mấy món dễ hợp với bàn nhỏ</h2></div><a href="/san-pham">Xem tất cả →</a></div><div className="grid">{demoProducts.map((product) => <article className="card" key={product.title}><div className="product-image" aria-hidden="true">{product.category}</div><p className="muted">{product.category}</p><h3>{product.title}</h3><strong>{product.price}</strong></article>)}</div></section>
+    <section className="section"><div className="section-heading"><div><p className="eyebrow">KHÁM PHÁ</p><h2>Chọn theo nhu cầu</h2></div></div><div className="category-grid">{featuredCategories.map(([key, title, description]) => <Link className="category-card" href={`/san-pham?category=${key}`} key={key}><strong>{title}</strong><span>{description}</span><span className="category-card__arrow" aria-hidden="true">→</span></Link>)}</div></section>
+    <FeaturedProducts />
   </div>;
 }
