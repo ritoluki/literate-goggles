@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-26**. T015 pushed commit: `8f5370a`; T016 hoàn tất local, chưa commit/push.
+Lần xác minh: **2026-09-26**. T016 pushed commit: `d266fbc`; T017–T019 verified locally, pending this requested push; T020 in progress.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -39,6 +39,14 @@ Lần xác minh: **2026-09-26**. T015 pushed commit: `8f5370a`; T016 hoàn tất
 | T015 lint/typecheck/build | PASS | Node 22.13.0; XDG config isolated under workspace for Medusa CLI | `pnpm lint`, `pnpm typecheck`, `pnpm build` exit 0 | Medusa and Next lint/build, workspace TS checks all pass; no external user config accessed |
 | T016 browser catalog acceptance | PASS | Playwright Core 1.63.0; local Chrome; Next 16.3.5 + Medusa 2.21.1 + PostgreSQL | `pnpm test:layout` exit 0 | Five widths no overflow; home loads 8 live demo catalog cards; catalog has 20 eligible/12+8 pages; Vietnamese accent search; combined category/color/price/stock returns expected single product; sort + browser back; simulated BFF 503 shows error and no empty-results claim |
 | T016 full verification | PASS | Node 22.13.0; pnpm 12.6.0; Docker/PostgreSQL/Redis/Mailpit; XDG config isolated in workspace | `pnpm verify` exit 0 | Doctor, lint no issues, typecheck, unit 9/9, offline 60, integration catalog/session/cart/promotion/shipping/COD, Next/Medusa/admin build PASS |
+| T017 PDP browser acceptance | PASS | Playwright Core + local Chrome; Medusa 2.21.1 + Next 16.3.5 | `pnpm test:layout` exit 0 | Real PDP detail/BFF, variant-specific VND price, no variant preselected, sold-out disabled, quantity retained, CSRF session/cart add; five responsive widths; screenshots reviewed |
+| T017 product image URL safety | PASS | Jest unit | `pnpm test:unit` exit 0 (10/10) | Only absolute HTTP(S) raster extensions accepted; SVG, javascript, credential URLs, invalid/oversized strings rejected |
+| T017 AT-51 upload pipeline | NOT_RUN | — | — | Admin upload magic-byte/size/re-encode validation not implemented or asserted; deferred to T033; URL render allowlist is not upload validation |
+| T017 full verification | PASS | Node 22.13.0, pnpm 12.6.0, local Docker services | `pnpm verify` exit 0 (2026-09-26) | Doctor, lint, typecheck, unit 10/10, offline 60, catalog/detail/session/cart/race/shipping/COD integration, Next and Medusa/admin build PASS |
+| T018 cart browser acceptance | PASS | Playwright Core + local Chrome; Medusa/Next + PostgreSQL/Redis | `pnpm test:layout` exit 0 (2026-09-26) | Session cart add; refresh preserves line and quantity; qty mutation persists after second reload; BGDEMO10 apply/remove; line removal leaves fixture cart empty |
+| T018 full verification | PASS | Node 22.13.0, pnpm 12.6.0, local Docker services | `pnpm verify` exit 0 (2026-09-26) | Doctor, lint, typecheck, unit10/10, offline60, catalog/detail/session/cart CSRF/ownership/race/shipping/COD integration, Next and Medusa/admin build PASS |
+| T019 policy + indexing browser | PASS | Playwright Core + local Chrome; Next 16.3.5 demo mode | `pnpm test:layout` exit 0 | Policy clearly draft/demo; meta robots noindex; `/robots.txt` disallows all; `/sitemap.xml` contains no indexable URL; full catalog/PDP/cart regression also PASS |
+| T019 lint/typecheck/build | PASS | Node 22.13.0 + pnpm 12.6.0 | `pnpm lint`, `pnpm typecheck`, `pnpm build` exit 0 | Next routes include policy/cart/robots/sitemap; Medusa backend/admin build PASS |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const categories = [
   { href: '/san-pham?category=desk-mat', label: 'Thảm bàn' },
@@ -14,6 +14,7 @@ export function SiteHeader() {
   const menuButton = useRef<HTMLButtonElement>(null)
   const mobileDialog = useRef<HTMLDialogElement>(null)
   const categoryDetails = useRef<HTMLDetailsElement>(null)
+  const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
     document.querySelector('.site-header')?.setAttribute('data-hydrated', 'true')
@@ -22,7 +23,27 @@ export function SiteHeader() {
       if (details?.open && !details.contains(event.target as Node)) details.open = false
     }
     document.addEventListener('pointerdown', closeOnOutside)
-    return () => document.removeEventListener('pointerdown', closeOnOutside)
+    let sequence = 0
+    const refreshCartCount = async () => {
+      const current = ++sequence
+      try {
+        const response = await fetch('/api/v1/cart', { cache: 'no-store' })
+        const payload = await response.json()
+        if (response.ok && current === sequence) {
+          setCartCount(Array.isArray(payload.data?.items)
+            ? payload.data.items.reduce((sum: number, item: { quantity?: number }) =>
+              sum + (Number.isSafeInteger(item.quantity) ? item.quantity! : 0), 0) : 0)
+        }
+      } catch { /* Keep the last known badge count. */ }
+    }
+    const onCartChanged = () => { void refreshCartCount() }
+    void refreshCartCount()
+    window.addEventListener('bg:cart-changed', onCartChanged)
+    return () => {
+      sequence++
+      document.removeEventListener('pointerdown', closeOnOutside)
+      window.removeEventListener('bg:cart-changed', onCartChanged)
+    }
   }, [])
 
   function openMenu() {
@@ -56,7 +77,7 @@ export function SiteHeader() {
         </nav>
         <div className="header-actions">
           <Link className="header-action" href="/san-pham" aria-label="Tìm sản phẩm">Tìm</Link>
-          <span className="header-action header-action--pending" aria-disabled="true">Giỏ <small>sắp có</small></span>
+          <Link className="header-action" href="/gio-hang" aria-label={`Giỏ hàng${cartCount ? `, ${cartCount} sản phẩm` : ''}`}>Giỏ{cartCount ? <span className="cart-badge" aria-hidden="true">{cartCount > 99 ? '99+' : cartCount}</span> : null}</Link>
           <button className="menu-toggle" type="button" ref={menuButton} onClick={openMenu} aria-label="Mở menu">Menu</button>
         </div>
       </div>
@@ -70,7 +91,7 @@ export function SiteHeader() {
           <p>Danh mục</p>
           {categories.map((category) => <Link className="mobile-drawer__subcategory" key={category.href} href={category.href} onClick={closeMenu}>{category.label}</Link>)}
           <span aria-disabled="true">Tư vấn — sắp có</span>
-          <span aria-disabled="true">Giỏ hàng — sắp có</span>
+          <Link href="/gio-hang" onClick={closeMenu}>Giỏ hàng{cartCount ? ` (${cartCount})` : ''}</Link>
         </nav>
       </dialog>
     </header>

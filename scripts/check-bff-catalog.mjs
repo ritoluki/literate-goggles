@@ -17,4 +17,19 @@ assert.equal((await second.json()).data.products.length, 8)
 const invalid = await get('?sort=unsafe')
 assert.equal(invalid.status, 400)
 assert.equal((await invalid.json()).error.code, 'INVALID_CATALOG_QUERY')
-console.log('PASS catalog BFF: same-origin 20 products, 12+8 pages, no-store, invalid query denied')
+
+const handle = firstBody.data.products[0].handle
+const detailResponse = await fetch(`http://127.0.0.1:3000/api/v1/products/${encodeURIComponent(handle)}`, {
+  signal: AbortSignal.timeout(15_000),
+})
+assert.equal(detailResponse.status, 200)
+assert.equal(detailResponse.headers.get('cache-control'), 'no-store')
+const detailBody = await detailResponse.json()
+assert.equal(detailBody.data.handle, handle)
+assert.match(detailBody.requestId, /^[0-9a-f-]{36}$/)
+assert(detailBody.data.variants.length > 0)
+const missingDetail = await fetch('http://127.0.0.1:3000/api/v1/products/not-a-real-product', {
+  signal: AbortSignal.timeout(15_000),
+})
+assert.equal(missingDetail.status, 404)
+console.log('PASS catalog BFF: same-origin list/detail no-store, pagination, invalid query/handle denied')

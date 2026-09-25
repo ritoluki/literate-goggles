@@ -3,7 +3,7 @@ import { existsSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from 'playwright-core'
 
-/* global document, getComputedStyle, location, URLSearchParams */
+/* global document, getComputedStyle, location, URLSearchParams, structuredClone, HTMLElement, window */
 const chromePath = process.env.LOCAL_CHROME_PATH ??
   'C:/Program Files/Google/Chrome/Application/chrome.exe'
 if (!existsSync(chromePath)) throw new Error('Local Chrome unavailable; set LOCAL_CHROME_PATH')
@@ -17,7 +17,7 @@ try {
     const page = await context.newPage()
     await page.goto('http://localhost:3000/', { waitUntil: 'networkidle' })
     await page.waitForSelector('.site-header[data-hydrated="true"]')
-    await page.addStyleTag({ content: 'nextjs-portal { display: none !important }' })
+    await page.addStyleTag({ content: 'nextjs-portal,.skip-link { display: none !important }' })
     await page.waitForFunction(() => document.querySelectorAll('.section .product-card-link').length === 8)
     const metrics = await page.evaluate(() => ({
       width: document.documentElement.clientWidth,
@@ -102,6 +102,85 @@ try {
       await page.locator('.inline-error[role="alert"]').waitFor()
       assert.equal(await page.getByText('Chưa tìm thấy sản phẩm').count(), 0,
         'API failure must not be presented as an empty catalog')
+
+      const handle = 'tham-ban-co-ban'
+      const detailUrl = `http://localhost:3000/api/v1/products/${handle}`
+      const detailResponse = await fetch(detailUrl)
+      assert.equal(detailResponse.status, 200)
+      const detailBody = await detailResponse.json()
+      const variantPrices = detailBody.data.variants.map((variant) => variant.priceVnd)
+      assert(variantPrices.length >= 2 && new Set(variantPrices).size > 1,
+        'Demo product should exercise variant-specific prices')
+      await page.goto(`http://localhost:3000/san-pham/${handle}`, { waitUntil: 'networkidle' })
+      await page.getByRole('heading', { name: 'Thảm bàn Cơ Bản' }).waitFor()
+      const addButton = page.getByRole('button', { name: 'Thêm vào giỏ' })
+      assert(await addButton.isDisabled(), 'Add-to-cart must be disabled before selecting a variant')
+      const firstVariant = detailBody.data.variants[0]
+      const secondVariant = detailBody.data.variants[1]
+      const firstRadio = page.locator(`input[name="product-variant"][value="${firstVariant.id}"]`)
+      const secondRadio = page.locator(`input[name="product-variant"][value="${secondVariant.id}"]`)
+      await firstRadio.check()
+      assert((await page.locator('.product-price').innerText()).includes(String(firstVariant.priceVnd).slice(0, 3)))
+      await page.getByLabel('Số lượng').fill('2')
+      await secondRadio.check()
+      assert.equal(await page.getByLabel('Số lượng').inputValue(), '2', 'Changing variant must preserve the selected quantity')
+      assert((await page.locator('.product-price').innerText()).includes(String(secondVariant.priceVnd).slice(0, 3)))
+      const secondPrice = moneyForTest(secondVariant.priceVnd)
+      assert((await page.locator('.product-price').innerText()).includes(secondPrice))
+      await page.evaluate(() => {
+        document.documentElement.style.scrollBehavior = 'auto'
+        window.scrollTo(0, 0)
+        if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+      })
+      await page.waitForFunction(() => window.scrollY === 0)
+      await page.addStyleTag({ content: 'nextjs-portal,.skip-link { display: none !important }' })
+      await page.screenshot({ path: resolve(artifactDir, 't017-product-mobile.png'), fullPage: true })
+      await page.getByRole('button', { name: 'Thêm vào giỏ' }).click()
+      await page.getByText('Đã thêm sản phẩm vào giỏ hàng.').waitFor({ timeout: 15_000 })
+      await page.getByRole('link', { name: 'Giỏ hàng, 2 sản phẩm' }).waitFor()
+      await page.goto('http://localhost:3000/gio-hang', { waitUntil: 'networkidle' })
+      await page.getByRole('heading', { name: 'Giỏ hàng' }).waitFor()
+      await page.getByText('Thảm bàn Cơ Bản', { exact: true }).waitFor()
+      await page.reload({ waitUntil: 'networkidle' })
+      const cartQuantity = page.getByLabel('Số lượng Thảm bàn Cơ Bản')
+      await cartQuantity.waitFor()
+      assert.equal(await cartQuantity.inputValue(), '2', 'Cart contents must persist after reload')
+      await page.getByLabel('Mã ưu đãi').fill('BGDEMO10')
+      await page.getByRole('button', { name: 'Áp dụng' }).click()
+      await page.getByText('Đang áp dụng: BGDEMO10').waitFor()
+      await page.getByRole('button', { name: 'Gỡ mã' }).click()
+      await page.getByRole('status').filter({ hasText: 'Giỏ hàng đã được cập nhật.' }).waitFor()
+      await cartQuantity.selectOption('3')
+      await page.getByRole('status').filter({ hasText: 'Giỏ hàng đã được cập nhật.' }).waitFor()
+      await page.reload({ waitUntil: 'networkidle' })
+      assert.equal(await page.getByLabel('Số lượng Thảm bàn Cơ Bản').inputValue(), '3',
+        'Updated quantity must persist after reload')
+      await page.getByRole('button', { name: 'Xóa' }).click()
+      await page.getByRole('heading', { name: 'Giỏ hàng đang trống' }).waitFor()
+      await page.goto(`http://localhost:3000/san-pham/${handle}`, { waitUntil: 'networkidle' })
+      await page.getByRole('heading', { name: 'Thảm bàn Cơ Bản' }).waitFor()
+      await page.goto('http://localhost:3000/chinh-sach', { waitUntil: 'networkidle' })
+      await page.getByText('BẢN DỰ THẢO NỘI BỘ').waitFor()
+      assert((await page.locator('meta[name="robots"]').getAttribute('content')).includes('noindex'))
+      assert.equal((await fetch('http://localhost:3000/robots.txt').then((response) => response.text())).includes('Disallow: /'), true)
+      assert.equal((await fetch('http://localhost:3000/sitemap.xml').then((response) => response.text())).includes('<url>'), false)
+      await page.goto(`http://localhost:3000/san-pham/${handle}`, { waitUntil: 'networkidle' })
+
+      const unavailableDetail = structuredClone(detailBody)
+      for (const variant of unavailableDetail.data.variants) {
+        variant.available = false
+        variant.maxOrderQuantity = 0
+      }
+      await page.route(`**/api/v1/products/${handle}`, (route) => route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(unavailableDetail),
+      }))
+      await page.reload({ waitUntil: 'networkidle' })
+      await page.locator(`input[name="product-variant"][value="${firstVariant.id}"]`).check()
+      const soldOutButton = page.getByRole('button', { name: 'Tạm hết hàng' })
+      assert(await soldOutButton.isDisabled(), 'Unavailable variant must not be addable')
+      await page.unroute(`**/api/v1/products/${handle}`)
     }
     if (width === 1280) {
       const summary = page.locator('.nav-disclosure summary')
@@ -112,10 +191,20 @@ try {
       assert(await summary.evaluate((element) => document.activeElement === element),
         'Category focus did not return to trigger')
       await page.screenshot({ path: resolve(artifactDir, 't015-desktop.png'), fullPage: true })
+      await page.goto('http://localhost:3000/san-pham/tham-ban-co-ban', { waitUntil: 'networkidle' })
+      await page.getByRole('heading', { name: 'Thảm bàn Cơ Bản' }).waitFor()
+      await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, 0) })
+      await page.waitForFunction(() => window.scrollY === 0)
+      await page.addStyleTag({ content: 'nextjs-portal,.skip-link { display: none !important }' })
+      await page.screenshot({ path: resolve(artifactDir, 't017-product-desktop.png'), fullPage: true })
     }
     await context.close()
   }
-  console.log('PASS T015/T016: five responsive viewports; navigation focus/keyboard; catalog search/filter/sort/pagination/back; API error is not empty state')
+  console.log('PASS T015–T019: five responsive viewports; catalog/PDP/cart; cart persistence, coupon and badge; draft policy and noindex/robots/sitemap')
 } finally {
   await browser.close()
+}
+
+function moneyForTest(value) {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
 }

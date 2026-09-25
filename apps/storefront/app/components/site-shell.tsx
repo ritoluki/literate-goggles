@@ -8,7 +8,7 @@ export function SiteFooter() {
   return <footer className="site-footer">
     <div className="container site-footer__inner">
       <div><strong>Bàn Gọn</strong><p>Gọn góc bàn, nhẹ ngày làm việc.</p></div>
-      <nav aria-label="Điều hướng chân trang"><Link href="/">Trang chủ</Link><Link href="/san-pham">Sản phẩm</Link></nav>
+      <nav aria-label="Điều hướng chân trang"><Link href="/">Trang chủ</Link><Link href="/san-pham">Sản phẩm</Link><Link href="/chinh-sach">Thông tin chính sách (dự thảo)</Link></nav>
       <p className="site-footer__note">Nội dung và sản phẩm hiện là dữ liệu minh họa. Chưa có giao dịch thật.</p>
     </div>
   </footer>

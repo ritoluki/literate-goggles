@@ -1,10 +1,11 @@
 # Tiến độ triển khai
 
-Trạng thái hiện tại: **P2_COMPLETE / P3_IN_PROGRESS**.
+Trạng thái hiện tại: **P3_COMPLETE / P4_IN_PROGRESS**.
 
 - Phase đã hoàn thành: P0, P1, P2.
-- Phase đang triển khai: P3; T008–T016 đã xong, task đang làm T017.
-- Last pushed implementation SHA: `8f5370a` (`origin/main`); T015 đã commit/push, T016 hoàn tất local, chưa commit/push.
+- Phase đã hoàn thành: P3; T008–T019 đã xong.
+- Phase đang triển khai: P4; task đang làm T020.
+- Last pushed implementation SHA: `d266fbc` (`origin/main`); T015/T016 đã commit/push, T017–T019 đã kiểm chứng local, chưa commit/push.
 - Runtime local: Node 22.13.0, pnpm 12.6.0, Docker Engine 29.8.0, Compose 5.5.1.
 - Local services: PostgreSQL 17.6, Redis 7.4.5, Mailpit 1.26.0 đang healthy.
 - Medusa: 2.21.1, migration và seed fixture đã chạy; backend/admin build PASS.
@@ -30,6 +31,10 @@ Trạng thái hiện tại: **P2_COMPLETE / P3_IN_PROGRESS**.
 | 2026-09-26 | P2 T014 hoàn tất | Seed idempotent set/zone/option VN; rule ship 30k/free từ 500k; sửa cart DTO dùng `item_subtotal`; quote/select engine; synthetic COD order chưa capture rồi cancel | `apps/backend/src/scripts/verify-demo-shipping.ts`, `apps/backend/src/scripts/seed-demo-products.ts`, `state/MEDUSA-API-MAP.md` | DONE local: `pnpm verify` PASS, lint riêng zero warning; 199000+30000=229000, 499999/500000 đúng; US address reject; captured_amount0; seed lần hai set/zone/option mỗi loại 1 | T015 design system/layout/navigation |
 | 2026-09-26 | P3 T015 hoàn tất | Tokens theo UI spec; responsive header/footer, category disclosure, native modal drawer; skip link, focus ring/touch targets, reusable empty/error/loading states | `apps/storefront/app/globals.css`, `apps/storefront/app/components/`, `scripts/check-layout.mjs`, `state/artifacts/t015-*.png` | DONE local: layout browser test 360/390/768/1280/1440, không tràn; Escape/focus restore, focus không thoát dialog; lint/typecheck/build PASS | T016 nối home/catalog/search/filter URL với API catalog thật |
 | 2026-09-26 | P3 T016 hoàn tất | Home 8 featured lấy từ BFF; category links; `/san-pham` search debounce/Enter, color/category/price/stock, sort, URL/history pagination, request abort; loading/error/empty | `apps/storefront/app/page.tsx`, `apps/storefront/app/san-pham/page.tsx`, `apps/storefront/app/components/catalog-view.tsx`, `scripts/check-layout.mjs` | DONE local: browser integration với Medusa thật (20 eligible; pages12+8; Vietnamese search; combined filters; sort/back; API503 không giả empty); `pnpm verify` PASS | T017 product detail/variants/images/availability |
+| 2026-09-26 | P3 T017 hoàn tất | PDP đọc Medusa thật qua Store API+BFF; chọn biến thể cập nhật giá/tồn/SKU; chặn sold-out; add cart qua session+CSRF; ảnh chỉ nhận URL raster an toàn | `apps/backend/src/api/store/products-v1/`, `apps/storefront/app/san-pham/[handle]/`, `scripts/check-layout.mjs`, `state/artifacts/t017-product-*.png` | `pnpm verify` PASS; browser five viewport/PDP variant+stock/cart PASS; upload pipeline AT-51 NOT_RUN, chuyển T033 | T018 cart page/badge/race-safe mutations |
+| 2026-09-26 | P3 T018 hoàn tất | Trang giỏ snapshot Medusa no-store; badge; cập nhật qty/xóa/coupon qua CSRF; sequence guard chặn GET cũ ghi đè và UI khóa mutation đồng thời | `apps/storefront/app/gio-hang/`, `apps/storefront/app/components/cart-view.tsx`, `apps/storefront/app/components/site-header.tsx`, `scripts/check-layout.mjs` | Browser verify: add, refresh giữ cart và qty, đổi qty, áp dụng/gỡ BGDEMO10, xóa fixture; `pnpm verify` PASS | T019 policy drafts, demo labels, noindex/sitemap |
+| 2026-09-26 | P3 T019 hoàn tất | Trang policy dự thảo có demo facts + checklist phê duyệt; footer link; noindex/no-follow mặc định; robots disallow; sitemap rỗng trừ live + opt-in + SITE_URL HTTPS | `apps/storefront/app/chinh-sach/`, `apps/storefront/app/robots.ts`, `apps/storefront/app/sitemap.ts`, `scripts/check-layout.mjs` | Browser assertions policy/noindex/robots/sitemap PASS; lint/typecheck/build PASS; chưa có nội dung pháp lý thật và không bật indexing | T020 guest address/shipping checkout |
+| 2026-09-26 | P4 T020 bắt đầu | Đọc FR-06/07, API contract address/options/select, shipping demo workflow; xác minh Medusa 2.21.1 `updateCartWorkflow`, `listShippingOptionsForCartWorkflow`, `addShippingMethodToCartWorkflow` | `docs/01-requirements.md`, `docs/04-data-and-commerce.md`, `docs/05-api-contracts.md`, `apps/backend/src/scripts/verify-demo-shipping.ts` | Chưa có implementation; tiếp tục bằng private owner-checked address endpoint, engine-quoted options và explicit shipping selection | T020 |
 
 ## Ghi chú tiếp tục
 
@@ -40,3 +45,4 @@ Trạng thái hiện tại: **P2_COMPLETE / P3_IN_PROGRESS**.
 - Không reset trạng thái khi đổi chat; đọc state và kiểm tra filesystem trước khi tiếp tục.
 - Catalog T011 không có snapshot ứng dụng nên không cần event invalidation riêng; đọc mới mỗi request, xem ADR-0002. Home UI vẫn có mảng demo hard-code, phải thay ở T016. Freshness khi sửa giá/tồn chưa test; đưa vào T013/P6, không coi cart/checkout đã sẵn sàng.
 - T015 screenshots được làm mới khi thay home bằng catalog thật ở T016. Browser harness yêu cầu root `pnpm dev` và `http://localhost:3000` để hydrate và truy cập Medusa BFF cùng origin.
+- Browser test tạo/dọn giỏ fixture; không xóa database volumes. T020 tiếp tục từ workflow Medusa đã đối chiếu với source cài đặt và docs chính thức; chỉ dùng địa chỉ giả tổng hợp.

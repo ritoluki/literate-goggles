@@ -48,4 +48,32 @@ const noKey = await get('')
 assert(noKey.status >= 400 && noKey.status < 500)
 const direct = await get('', demoKey, false)
 assert.equal(direct.status, 403, 'publishable key alone must not bypass BFF')
-console.log('PASS catalog HTTP: 20 eligible products; pages; invalid sort/channel and direct Store bypass denied')
+
+const detailBase = 'http://127.0.0.1:9000/store/products-v1/'
+const detailResponse = await fetch(detailBase + encodeURIComponent(catalog.products[0].handle), {
+  headers: { 'x-publishable-api-key': demoKey, 'x-bg-service-key': serviceKey },
+  signal: AbortSignal.timeout(15_000),
+})
+assert.equal(detailResponse.status, 200, 'published demo product detail should be available')
+assert.equal(detailResponse.headers.get('cache-control'), 'no-store')
+const detail = (await detailResponse.json()).product
+assert.equal(detail.handle, catalog.products[0].handle)
+assert(detail.variants.length > 0)
+assert(detail.variants.every((variant) =>
+  variant.priceVnd === null || Number.isSafeInteger(variant.priceVnd)
+))
+assert(detail.variants.every((variant) => Number.isInteger(variant.maxOrderQuantity) &&
+  (variant.available ? variant.maxOrderQuantity > 0 : variant.maxOrderQuantity === 0)
+))
+assert(!JSON.stringify(detail).includes('<script'))
+const missingDetail = await fetch(detailBase + 'not-a-real-product', {
+  headers: { 'x-publishable-api-key': demoKey, 'x-bg-service-key': serviceKey },
+  signal: AbortSignal.timeout(15_000),
+})
+assert.equal(missingDetail.status, 404)
+const wrongChannelDetail = await fetch(detailBase + encodeURIComponent(catalog.products[0].handle), {
+  headers: { 'x-publishable-api-key': starterKey, 'x-bg-service-key': serviceKey },
+  signal: AbortSignal.timeout(15_000),
+})
+assert.equal(wrongChannelDetail.status, 403)
+console.log('PASS catalog HTTP: full-scope pages/filters and channel-scoped, no-store product detail with live variant prices/availability')

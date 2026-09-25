@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker kỹ thuật đang mở cho local P3. T015–T016 hoàn tất; tiếp tục T017.
+Hiện không có blocker kỹ thuật đang mở. T015–T019 hoàn tất; đang triển khai T020 local.
 
 ## Blocker đã giải quyết
 
@@ -25,4 +25,5 @@ Hiện không có blocker kỹ thuật đang mở cho local P3. T015–T016 hoà
 ## Gaps không phải blocker
 
 - E2E browser, security, load, backup/restore và live Jev vẫn NOT_RUN theo phase tương ứng.
+- AT-51 kiểm tra upload/re-encode ảnh chưa chạy; T017 chỉ allowlist URL raster ở Store API. Ghi nhận thực hiện trong T033; chưa cho phép upload ảnh tùy ý.
 - Git `origin/main` đã nhận commit `40234a6` (T014); remote CI run chưa xác minh trong phiên này.
