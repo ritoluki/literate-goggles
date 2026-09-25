@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type CartSnapshot = {
   items: Array<{ lineId: string; title: string; quantity: number; totalVnd: number }>
@@ -34,6 +34,8 @@ export function CheckoutView() {
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [review, setReview] = useState<Review | null>(null)
+  const [completion, setCompletion] = useState<{ status: 'succeeded' | 'pending'; orderReference?: string } | null>(null)
+  const intentKey = useRef<string | null>(null)
 
   useEffect(() => {
     let active = true
@@ -74,7 +76,7 @@ export function CheckoutView() {
 
   async function saveAddress(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setBusy(true); setError(''); setNotice(''); setSelected(''); setReview(null)
+    setBusy(true); setError(''); setNotice(''); setSelected(''); setReview(null); setCompletion(null); intentKey.current = null
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/address', {
@@ -101,7 +103,7 @@ export function CheckoutView() {
   }
 
   async function chooseShipping(optionId: string) {
-    setBusy(true); setError(''); setSelected(''); setReview(null)
+    setBusy(true); setError(''); setSelected(''); setReview(null); setCompletion(null); intentKey.current = null
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/shipping', {
@@ -119,7 +121,7 @@ export function CheckoutView() {
   }
 
   async function createReview() {
-    setBusy(true); setError(''); setNotice(''); setReview(null)
+    setBusy(true); setError(''); setNotice(''); setReview(null); setCompletion(null); intentKey.current = null
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/review', {
@@ -133,6 +135,35 @@ export function CheckoutView() {
       setNotice('Đã chốt bản xem lại COD trong 5 phút. Bạn cần xác nhận lại nếu thông tin giỏ thay đổi.')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Không thể xác minh bản xem lại đơn hàng.')
+    } finally { setBusy(false) }
+  }
+
+  async function completeOrder() {
+    if (!review) return
+    setBusy(true); setError(''); setCompletion(null)
+    try {
+      const csrf = await csrfToken()
+      intentKey.current ??= crypto.randomUUID()
+      const response = await fetch('/api/v1/checkout/complete', {
+        method: 'POST', headers: { 'content-type': 'application/json', 'x-bg-csrf-token': csrf,
+          'idempotency-key': intentKey.current }, body: JSON.stringify({ reviewToken: review.reviewToken }),
+        cache: 'no-store',
+      })
+      const payload = await response.json()
+      if (!response.ok) {
+        if (payload.error?.code === 'CART_CHANGED') {
+          setReview(null); setCompletion(null); setSelected(''); intentKey.current = null
+          const latestCart = await fetch('/api/v1/cart', { cache: 'no-store' })
+          if (latestCart.ok) setCart((await latestCart.json()).data as CartSnapshot)
+        }
+        throw new Error(payload.error?.code === 'CART_CHANGED'
+          ? 'Giỏ hàng đã thay đổi. Hãy kiểm tra lại tổng tiền trước khi xác nhận.'
+          : 'Chưa thể hoàn tất đơn; bản xem lại có thể đã hết hạn.')
+      }
+      if (response.status === 202) setCompletion({ status: 'pending' })
+      else setCompletion({ status: 'succeeded', orderReference: payload.data.orderReference })
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Chưa thể hoàn tất đơn hàng.')
     } finally { setBusy(false) }
   }
 
@@ -165,7 +196,10 @@ export function CheckoutView() {
         <p><span>Vận chuyển</span><strong>{cart.shippingVnd === null ? 'Chưa xác định' : money(cart.shippingVnd)}</strong></p><p><span>Thuế</span><strong>{money(cart.taxVnd)}</strong></p><p className="cart-total"><span>Tổng hiện tại</span><strong>{money(cart.totalVnd)}</strong></p>
         {options.length ? <fieldset className="shipping-options"><legend>Chọn phương thức vận chuyển</legend>{options.map((option) => <label key={option.id}><input type="radio" name="shipping-option" value={option.id} checked={selected === option.id} disabled={busy} onChange={() => void chooseShipping(option.id)} /><span>{option.name}</span><strong>{money(option.amountVnd)}</strong></label>)}</fieldset> : null}
         {selected ? <button className="button checkout-continue" type="button" disabled={busy} onClick={() => void createReview()}>{busy ? 'Đang xác minh…' : 'Xem lại đơn COD'}</button> : null}
-        {review ? <div className="checkout-state" role="status"><h3>Đơn đã được tính lại</h3><p>Thanh toán khi nhận hàng (COD)</p><p>Tổng xác nhận: <strong>{money(review.cart.totalVnd)}</strong></p><p>Mã xác minh có hiệu lực đến {new Date(review.expiresAt).toLocaleTimeString('vi-VN')}.</p><p>Chưa tạo đơn; bước xác nhận đặt hàng sẽ xuất hiện tiếp theo.</p></div> : null}
+        {review ? <div className="checkout-state" role="status"><h3>Đơn đã được tính lại</h3><p>Thanh toán khi nhận hàng (COD)</p><p>Tổng xác nhận: <strong>{money(review.cart.totalVnd)}</strong></p><p>Mã xác minh có hiệu lực đến {new Date(review.expiresAt).toLocaleTimeString('vi-VN')}.</p>{!completion ? <p>Chưa tạo đơn; chỉ tạo đơn sau khi bạn bấm xác nhận.</p> : null}</div> : null}
+        {review && !completion ? <button className="button checkout-continue" type="button" disabled={busy} onClick={() => void completeOrder()}>{busy ? 'Đang gửi yêu cầu…' : 'Xác nhận đặt đơn COD'}</button> : null}
+        {completion?.status === 'pending' ? <p role="status">Yêu cầu đang được đối soát. Không gửi yêu cầu đặt hàng mới.</p> : null}
+        {completion?.status === 'succeeded' ? <p role="status">Đơn đã được Medusa ghi nhận. Mã đơn: {completion.orderReference}</p> : null}
         <p className="checkout-next-note">Phí và tổng do Medusa tính. Xem lại chưa tạo đơn hoặc gửi email.</p>
       </aside>
     </div>

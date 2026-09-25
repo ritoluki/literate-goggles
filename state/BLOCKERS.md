@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker kỹ thuật đang mở. T015–T021 hoàn tất; T017–T020 đã push; đang triển khai T022. Runtime ngoài local phải cấu hình `REVIEW_TOKEN_SECRET` riêng (fail-closed nếu thiếu); điều này không chặn local demo/test.
+Hiện không có blocker môi trường/kỹ thuật bên ngoài. T015–T021 hoàn tất; T017–T021 đã push; T022 đang triển khai. T022 còn acceptance recovery/crash/multi-key chưa kiểm chứng (không coi là blocker dừng việc); runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
 
 ## Blocker đã giải quyết
 

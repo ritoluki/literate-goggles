@@ -12,7 +12,7 @@ export function backendConfig() {
 export async function privateBackendFetch(
   request: NextRequest,
   path: string,
-  init: { method?: string; body?: string } = {}
+  init: { method?: string; body?: string; idempotencyKey?: string } = {}
 ) {
   const config = backendConfig()
   const token = request.cookies.get(SESSION_COOKIE)?.value
@@ -23,6 +23,7 @@ export async function privateBackendFetch(
       'x-publishable-api-key': config.key,
       'x-bg-service-key': config.serviceKey,
       'x-bg-session-token': token,
+      ...(init.idempotencyKey ? { 'idempotency-key': init.idempotencyKey } : {}),
       ...(init.body ? { 'content-type': 'application/json' } : {}),
     },
     body: init.body,

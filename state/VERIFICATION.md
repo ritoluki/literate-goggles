@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-26**. T020 pushed (`3512203`); T021 verified locally; T022 in progress.
+Lần xác minh: **2026-09-26**. T021 pushed (`87fd031`); T022 vertical slice `pnpm verify` PASS locally, task remains in progress.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -53,8 +53,14 @@ Lần xác minh: **2026-09-26**. T020 pushed (`3512203`); T021 verified locally;
 | T021 token unit tests | PASS | Jest 29; ephemeral synthetic signing key | `pnpm --filter @ban-gon/backend run test:unit` | HMAC signature/tamper, expiry, session+total binding and no email/address claims; backend suite 12/12. |
 | T021 review HTTP integration | PASS | Next 16.3.5 + Medusa 2.21.1 + PostgreSQL/Redis; ephemeral key | `pnpm test:integration` exit 0 (2026-09-26) | Session-owned guest cart/address/shipping; Medusa payment collection + COD session; signed review 229000 VND; change qty→distinct token and Medusa total428000; no PII in token. |
 | T021 browser acceptance | PASS | Playwright Core + local Next/Medusa; synthetic checkout fixtures | `pnpm test:layout` exit 0 (2026-09-26) | Mobile checkout chooses engine shipping, requests COD review and displays server-returned total/expiry; all T015–T021 layout assertions PASS. |
-| AT-13 complete-time CART_CHANGED | NOT_RUN — assigned T022 | — | — | Review verifier rejects a differing cart snapshot in unit tests; HTTP complete-time `CART_CHANGED` is not testable until T022 implements complete. Not waived. |
-| AT-53 mutated cart complete response | NOT_RUN — assigned T022 | — | — | Complete endpoint not implemented until T022; required 409 + new review behavior remains open, not waived. |
+| AT-13 complete-time CART_CHANGED | PASS | Next BFF + Medusa 2.21.1, real local stack | `pnpm test:integration` exit 0 (2026-09-26) | Review A; cart qty changes; complete A→409 `CART_CHANGED`; new review B reflects Medusa total428000 and completes. |
+| AT-53 mutated cart complete response | PASS | Next BFF + Medusa/PostgreSQL/Redis | `pnpm test:integration` exit 0 (2026-09-26) | Mutating the session-owned cart after token issue rejects completion; no order from stale review; only explicit fresh review completes. |
+| T022 stale-review completion guard | PASS | Next BFF + Medusa 2.21.1; local real stack | `pnpm test:integration` | Changing quantity after review makes old signed snapshot return `409 CART_CHANGED`; fresh review succeeds using core `completeCartWorkflow`. |
+| T022 same-key concurrency + mismatch | PASS | Next BFF + Medusa/PostgreSQL/Redis; synthetic fixture | `pnpm test:integration` exit 0 (2026-09-26) | One explicit COD completion returns 201; ten concurrent same-key retries return 200 with the same order reference; changed token under reused key→409 `IDEMPOTENCY_CONFLICT`; fixture order is canceled, not deleted. |
+| T022 full verification | PASS | Local real stack; PostgreSQL/Redis/Mailpit; Node 22.13/pnpm 12.6 | `pnpm verify` exit 0 (2026-09-26) | Doctor, lint (zero warnings), typecheck, backend unit 12/12, offline suite 60, integration including checkout completion and shipping fixture cleanup, storefront build, Medusa backend/admin build. |
+| AT-22 concurrent distinct keys | NOT_RUN | — | — | Same-cart ledger returns existing order for an already-succeeded completion, but simultaneous distinct-key race not yet asserted. |
+| AT-24 crash after order commit | NOT_RUN | — | — | Ledger marks uncertain workflow outcomes `reconciling`; durable workflow-transaction lookup/recovery is not yet implemented. |
+| AT-25 upstream timeout | NOT_RUN | — | — | UI/API can return pending on reconciling but no intent status/poll/reconciliation endpoint yet (T023/T022 follow-up). |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

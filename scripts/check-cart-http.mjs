@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { randomUUID } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 
 const origin = 'http://127.0.0.1:3000'
@@ -235,5 +236,40 @@ assert.equal(changedReviewResponse.status, 200)
 const changedReview = (await changedReviewResponse.json()).data
 assert.notEqual(changedReview.reviewToken, review.reviewToken, 'changed cart must get a distinct signed review')
 assert.equal(changedReview.cart.totalVnd, 428000, 'updated total must come from Medusa after cart mutation')
+const staleComplete = await fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': randomUUID() },
+  body: JSON.stringify({ reviewToken: review.reviewToken }), signal: AbortSignal.timeout(30_000),
+})
+assert.equal(staleComplete.status, 409, 'old review must not complete after cart mutation')
+assert.equal((await staleComplete.json()).error.code, 'CART_CHANGED')
+const placeOrderKey = randomUUID()
+const placeOrder = await fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': placeOrderKey },
+  body: JSON.stringify({ reviewToken: changedReview.reviewToken }), signal: AbortSignal.timeout(45_000),
+})
+assert.equal(placeOrder.status, 201, 'explicit current COD review should complete through Medusa')
+const placed = (await placeOrder.json()).data
+assert.equal(placed.status, 'succeeded')
+assert(placed.orderReference)
+const replayRequests = await Promise.all(Array.from({ length: 10 }, () => fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': placeOrderKey },
+  body: JSON.stringify({ reviewToken: changedReview.reviewToken }), signal: AbortSignal.timeout(30_000),
+})))
+assert.deepEqual(replayRequests.map((response) => response.status), Array(10).fill(200),
+  'ten concurrent retries for one completed cart should return the existing order')
+const replayReferences = await Promise.all(replayRequests.map(async (response) =>
+  (await response.json()).data.orderReference))
+assert(replayReferences.every((reference) => reference === placed.orderReference))
+const payloadMismatch = await fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': placeOrderKey },
+  body: JSON.stringify({ reviewToken: review.reviewToken }), signal: AbortSignal.timeout(30_000),
+})
+assert.equal(payloadMismatch.status, 409, 'same idempotency key with a different review payload must conflict')
+assert.equal((await payloadMismatch.json()).error.code, 'IDEMPOTENCY_CONFLICT')
 console.log('PASS checkout review HTTP: guest address, Medusa shipping quote/selection and COD payment session; signed five-minute token binds VND total without PII')
+console.log('PASS checkout completion HTTP: stale review rejected; Medusa COD order created once; ten parallel replays return same order; key/payload mismatch rejected')
 console.log('PASS cart HTTP: Medusa VND add/update/remove and 10% promotion; refresh, locked quantity race, CSRF/Origin, isolated sessions, backend 429 quota')

@@ -131,4 +131,15 @@ export default async function verifyDemoShipping({ container }: ExecArgs) {
     })
     assert(canceledOrders[0]?.canceled_at, 'Synthetic order must be canceled after test')
   }
+  const { data: reviewFixtureOrders } = await query.graph({
+    entity: 'order', fields: ['id', 'canceled_at'], filters: { email: 'review-fixture@invalid.example' },
+  })
+  for (const fixture of reviewFixtureOrders) {
+    if (!fixture.canceled_at) await cancelOrderWorkflow(container).run({ input: { order_id: fixture.id } })
+  }
+  const { data: remainingFixtures } = await query.graph({
+    entity: 'order', fields: ['id', 'canceled_at'], filters: { email: 'review-fixture@invalid.example' },
+  })
+  assert(remainingFixtures.every((fixture) => Boolean(fixture.canceled_at)),
+    'Synthetic checkout integration orders must be canceled, never deleted')
 }
