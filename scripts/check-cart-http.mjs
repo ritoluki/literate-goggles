@@ -243,6 +243,16 @@ const staleComplete = await fetch(origin + '/api/v1/checkout/complete', {
 })
 assert.equal(staleComplete.status, 409, 'old review must not complete after cart mutation')
 assert.equal((await staleComplete.json()).error.code, 'CART_CHANGED')
+const incompleteSession = await newSession()
+assert.equal((await add(incompleteSession, { variantId: variantIdValue, quantity: 1 })).status, 200,
+  'incomplete checkout fixture must own a real Medusa cart')
+const incompleteComplete = await fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: incompleteSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': incompleteSession.csrf, 'idempotency-key': randomUUID() },
+  body: JSON.stringify({ reviewToken: 'synthetic-no-review' }), signal: AbortSignal.timeout(30_000),
+})
+assert.equal(incompleteComplete.status, 409, 'checkout without address/shipping/payment review must be rejected')
+assert.equal((await incompleteComplete.json()).error.code, 'CHECKOUT_INCOMPLETE')
 const placeOrderKey = randomUUID()
 const secondTabKey = randomUUID()
 const completeFromTab = (key) => fetch(origin + '/api/v1/checkout/complete', {
