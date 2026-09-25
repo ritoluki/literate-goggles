@@ -79,6 +79,8 @@ Mẫu trong `ops/`. Agent map chúng vào app thực, ghi cái nào custom/offic
 
 `.env` riêng frontend/backend; root script đọc đúng file, không tự load tất cả biến vào browser. Env thiếu key AI không fail commerce; thiếu JWT/COOKIE/session secret ở live phải fail startup.
 
+Local demo: sau `pnpm infra:up`, `pnpm db:migrate`, `pnpm db:seed:demo`, lệnh `pnpm dev` tự đọc publishable key demo từ PostgreSQL local và chỉ truyền qua env của tiến trình Next. Key không được in hoặc ghi vào Git. Khi chạy storefront riêng/staging, cấu hình `BACKEND_URL` và `MEDUSA_PUBLISHABLE_KEY` server-side; thiếu key thì `/api/v1/catalog` trả 503 an toàn. `pnpm test:integration` tự bật/tắt Medusa và Next khi chưa chạy và kiểm tra catalog Medusa+BFF.
+
 ## 9.8 Developer experience
 
 README ứng dụng cuối phải có “clean clone → local order” bằng vài lệnh root sau prerequisites; không yêu cầu chủ dự án chạy mười terminal. Cung cấp PowerShell và shell khi syntax khác; không đưa bash line continuation `\` vào CMD rồi giả chạy được.

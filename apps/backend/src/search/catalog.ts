@@ -43,6 +43,61 @@ export type CatalogCard = {
   demo: boolean
 }
 
+const CATEGORIES = new Set(['desk-mat', 'laptop-stand', 'cable-organizer', 'stationery'])
+const COLORS = new Set(['black', 'gray', 'beige', 'green', 'white', 'brown'])
+const SORTS = new Set(['relevance', 'price_asc', 'price_desc', 'newest'])
+const KEYS = new Set([
+  'q', 'category', 'color', 'minPriceVnd', 'maxPriceVnd',
+  'inStock', 'sort', 'page', 'limit',
+])
+
+export class CatalogQueryError extends Error {}
+
+export function parseCatalogFilters(url: string): CatalogFilters {
+  const params = new URL(url, 'http://localhost').searchParams
+  for (const key of params.keys()) {
+    if (!KEYS.has(key) || params.getAll(key).length !== 1) {
+      throw new CatalogQueryError('Unknown or repeated catalog parameter')
+    }
+  }
+  const integer = (key: string, fallback: number, min: number, max: number): number => {
+    const raw = params.get(key)
+    if (raw === null) return fallback
+    if (!/^(0|[1-9][0-9]*)$/.test(raw)) throw new CatalogQueryError('Invalid ' + key)
+    const value = Number(raw)
+    if (!Number.isSafeInteger(value) || value < min || value > max) {
+      throw new CatalogQueryError('Invalid ' + key)
+    }
+    return value
+  }
+  const q = params.get('q')?.trim()
+  if (q && q.length > 100) throw new CatalogQueryError('Query is too long')
+  const category = params.get('category') ?? undefined
+  if (category && !CATEGORIES.has(category)) throw new CatalogQueryError('Invalid category')
+  const color = params.get('color') ?? undefined
+  if (color && !COLORS.has(color)) throw new CatalogQueryError('Invalid color')
+  const sort = params.get('sort') ?? 'relevance'
+  if (!SORTS.has(sort)) throw new CatalogQueryError('Invalid sort')
+  const inStockRaw = params.get('inStock')
+  if (inStockRaw !== null && inStockRaw !== 'true' && inStockRaw !== 'false') {
+    throw new CatalogQueryError('Invalid inStock')
+  }
+  const minPriceVnd = params.has('minPriceVnd')
+    ? integer('minPriceVnd', 0, 0, 50_000_000) : undefined
+  const maxPriceVnd = params.has('maxPriceVnd')
+    ? integer('maxPriceVnd', 0, 0, 50_000_000) : undefined
+  if (minPriceVnd !== undefined && maxPriceVnd !== undefined && minPriceVnd > maxPriceVnd) {
+    throw new CatalogQueryError('Price range is reversed')
+  }
+  return {
+    q, category, color, minPriceVnd, maxPriceVnd,
+    inStock: inStockRaw === 'true',
+    sort: sort as CatalogFilters['sort'],
+    page: integer('page', 1, 1, 1_000_000),
+    limit: integer('limit', 12, 1, 48),
+  }
+}
+
 export function normalizeCatalogText(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/g, 'd').replace(/Đ/g, 'D')

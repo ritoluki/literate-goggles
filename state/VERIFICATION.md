@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-25**. Base commit: `1b6586320a8aaf4e4576bc3ac4c1d93bf0335be9`; thay đổi T009–T011 chưa commit/push.
+Lần xác minh: **2026-09-25**. Pushed base commit: `03918a0b0f1ff4559dc3456f7276adf1a257ed75`; phần T011 hoàn thiện sau commit còn chưa commit/push.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -16,7 +16,10 @@ Lần xác minh: **2026-09-25**. Base commit: `1b6586320a8aaf4e4576bc3ac4c1d93bf
 | T010 after-order stock scenario | NOT_RUN | — | — | Chưa có checkout/order demo để test sau một order; seed chỉ tạo level thiếu, không update tồn hiện hữu. Kiểm chứng với order ở T013/T014. |
 | T011 selector unit | PASS | Jest 29 / backend TS | `pnpm test:unit` exit 0 (2026-09-25) | Root fixture 1/1 và catalog 3/3; lọc trước pagination, draft/channel/no-price, Unicode, màu + giá cùng buyable variant |
 | T011 runtime after test relocation | PASS | Medusa 2.21.1 local | `pnpm test:integration` exit 0 (2026-09-25) | Medusa health 200, DB unique test PASS; test files không còn bị search loader nạp |
-| T011 catalog retrieval/API/invalidation | NOT_RUN | — | — | Selector chưa nối Remote Query/BFF hoặc events; T011 vẫn IN_PROGRESS |
+| T011 real adapter | PASS | Medusa 2.21.1, region VND/channel demo | `pnpm --filter @ban-gon/backend run verify:catalog-adapter` (lệnh CLI tương đương) exit 0 | 21 published/channel sources, 42 variants; 20 priced eligible; mapping màu và màu đắt hơn budget bị loại; cap 1.000 |
+| T011 Medusa+BFF HTTP | PASS | PostgreSQL/Redis/Mailpit/Medusa/Next local | `pnpm test:integration` cold start exit 0 (2026-09-25) | 20 eligible, 12+8 trang, wrong-channel key403, missing key4xx, invalid sort400, BFF no-store; runner tự stop cả hai app |
+| T011 product freshness | PASS | Demo fixture, Medusa updateProductsWorkflow | `pnpm --filter @ban-gon/backend run verify:catalog-freshness` (lệnh CLI tương đương) exit 0 | Title đổi phản ánh ở Query ngay; original được khôi phục trong finally và xác nhận sau restore |
+| T011 price/inventory edit freshness | NOT_RUN | — | — | Chưa chạy biến động giá/tồn qua Admin workflow; không dùng catalog read làm quyền quyết định cart/checkout |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

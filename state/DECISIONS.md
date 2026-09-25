@@ -25,3 +25,5 @@ Ghi quyết định thật với ngày, phạm vi, người duyệt, giới hạ
 ## ADR
 ADR cần thiết khi thay nền tảng, ranh giới auth, chính sách money, provider hoặc quy mô retrieval; không cần ADR cho mọi component CSS.
 Dùng `templates/ADR.md`, đặt file trong `docs/adr/`, link ở đây.
+
+- [ADR-0002: Catalog đọc mới, chưa có snapshot ứng dụng](../docs/adr/0002-catalog-fresh-read.md) — local P2, cần đo lại ở P6 trước staging.

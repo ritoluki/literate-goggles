@@ -3,8 +3,8 @@
 Trạng thái hiện tại: **P1_COMPLETE / P2_IN_PROGRESS**.
 
 - Phase đã hoàn thành: P0, P1.
-- Phase đang triển khai: P2; T008–T010 đã xong, task đang làm T011.
-- Last implementation SHA: `1b6586320a8aaf4e4576bc3ac4c1d93bf0335be9` (initial commit, đã push `origin/main`).
+- Phase đang triển khai: P2; T008–T011 đã xong, task đang làm T012.
+- Last pushed implementation SHA: `03918a0b0f1ff4559dc3456f7276adf1a257ed75` (`origin/main`); phần T011 hoàn thiện sau commit này còn ở worktree.
 - Runtime local: Node 22.13.0, pnpm 12.6.0, Docker Engine 29.8.0, Compose 5.5.1.
 - Local services: PostgreSQL 17.6, Redis 7.4.5, Mailpit 1.26.0 đang healthy.
 - Medusa: 2.21.1, migration và seed fixture đã chạy; backend/admin build PASS.
@@ -24,6 +24,7 @@ Trạng thái hiện tại: **P1_COMPLETE / P2_IN_PROGRESS**.
 | 2026-09-25 | P2 T009 | Tạo commerceIdentity module 7 model, migration additive; kiểm tra unique indexes và duplicate transaction rollback | `apps/backend/src/modules/commerce-identity/`, `apps/backend/integration-tests/db/commerce-identity.sql` | DONE; lint/typecheck/unit/eval/integration/build PASS | T010 seed guard và kiểm chứng 24/48 |
 | 2026-09-25 | P2 T010 | Seed từ chối live/unset mode, phát hiện handle/SKU xung đột, chỉ tạo inventory level thiếu; seed lại hai lần | `apps/backend/src/scripts/seed-demo-products.ts`, DB local | DONE; 24 products/48 variants, 48 levels và stocked=1109 không đổi; live guard exit 1; lint/typecheck/build PASS | T011 catalog adapter |
 | 2026-09-25 | P2 T011 (đang làm) | Triển khai selector lọc toàn tập trước pagination; test draft/channel/giá, Unicode và variant-level color/budget; sửa Jest runner chạy được trên Windows | `apps/backend/src/search/catalog.ts`, `apps/backend/integration-tests/unit/catalog.unit.spec.ts`, `apps/backend/scripts/run-jest.mjs` | PARTIAL; unit 3/3, lint/typecheck/integration/build PASS; retrieval/API/invalidation chưa làm | Nối Medusa Query với selector, BFF catalog và invalidation |
+| 2026-09-25 | P2 T011 hoàn tất | Query Medusa 21 sources/20 priced eligible; Store route + Next BFF; phân trang 12+8, key/channel guard, strict filters; đọc mới no-store theo ADR-0002; product workflow edit phản ánh rồi restore | `src/search/load-catalog.ts`, `src/api/store/catalog-v1/route.ts`, `apps/storefront/app/api/v1/catalog/route.ts`, `state/MEDUSA-API-MAP.md` | DONE local: unit 4/4, real adapter, cold-start integration, freshness, lint/typecheck/build PASS | T012 session/service-auth/ownership |
 
 ## Ghi chú tiếp tục
 
@@ -32,4 +33,4 @@ Trạng thái hiện tại: **P1_COMPLETE / P2_IN_PROGRESS**.
 - `medusa build` không bị deadlock: pha admin frontend có khoảng lặng dài; lần PASS gần nhất mất khoảng 81 giây riêng frontend.
 - Dùng `pnpm run doctor`, không dùng `pnpm doctor` vì pnpm 12 có built-in command cùng tên.
 - Không reset trạng thái khi đổi chat; đọc state và kiểm tra filesystem trước khi tiếp tục.
-- T011 chưa đạt AC: selector thuần đã có, nhưng chưa có route catalog thật, full retrieval theo region/channel và invalidation events. Không dùng mảng demo hard-code ở storefront như catalog thật.
+- Catalog T011 không có snapshot ứng dụng nên không cần event invalidation riêng; đọc mới mỗi request, xem ADR-0002. Home UI vẫn có mảng demo hard-code, phải thay ở T016. Freshness khi sửa giá/tồn chưa test; đưa vào T013/P6, không coi cart/checkout đã sẵn sàng.

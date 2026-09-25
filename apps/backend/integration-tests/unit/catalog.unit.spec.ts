@@ -1,4 +1,9 @@
-import { normalizeCatalogText, selectCatalog, type CatalogSource } from '../../src/search/catalog'
+import {
+  normalizeCatalogText,
+  parseCatalogFilters,
+  selectCatalog,
+  type CatalogSource,
+} from '../../src/search/catalog'
 
 function source(index: number, overrides: Partial<CatalogSource> = {}): CatalogSource {
   return {
@@ -18,6 +23,19 @@ function source(index: number, overrides: Partial<CatalogSource> = {}): CatalogS
 }
 
 describe('catalog full-set selection', () => {
+  it('validates bounded query parameters before data retrieval', () => {
+    expect(parseCatalogFilters('/store/catalog-v1?page=2&limit=48&inStock=true')).toMatchObject({
+      page: 2, limit: 48, inStock: true,
+    })
+    for (const query of [
+      'sort=drop-table', 'limit=49', 'page=0', 'minPriceVnd=-1',
+      'minPriceVnd=200&maxPriceVnd=100', 'color=red',
+      'page=1&page=2', 'unexpected=value',
+    ]) {
+      expect(() => parseCatalogFilters('/store/catalog-v1?' + query)).toThrow()
+    }
+  })
+
   it('normalizes Vietnamese text without losing word boundaries', () => {
     expect(normalizeCatalogText('  Đèn   BÀN  ')).toBe('den ban')
   })

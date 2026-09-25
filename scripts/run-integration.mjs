@@ -2,6 +2,7 @@ import { spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 
 const healthUrl = 'http://127.0.0.1:9000/health'
+const catalogBffUrl = 'http://127.0.0.1:3000/api/v1/catalog?limit=1'
 const deadlineMs = 150_000
 
 async function isHealthy() {
@@ -25,6 +26,25 @@ async function waitForBackend(child) {
   throw new Error(`Medusa did not become healthy within ${deadlineMs / 1_000}s`)
 }
 
+async function isStorefrontHealthy() {
+  try {
+    const response = await fetch(catalogBffUrl, { signal: AbortSignal.timeout(5_000) })
+    return response.status === 200
+  } catch {
+    return false
+  }
+}
+
+async function waitForStorefront(child) {
+  const startedAt = Date.now()
+  while (Date.now() - startedAt < deadlineMs) {
+    if (child.exitCode !== null) throw new Error('Storefront exited before catalog became healthy')
+    if (await isStorefrontHealthy()) return
+    await new Promise((resolve) => setTimeout(resolve, 1_000))
+  }
+  throw new Error('Storefront catalog did not become healthy in time')
+}
+
 function stopProcessTree(child) {
   if (!child || child.exitCode !== null) return
   if (process.platform === 'win32') {
@@ -35,6 +55,7 @@ function stopProcessTree(child) {
 }
 
 let backend
+let storefront
 try {
   const dbCheck = spawnSync('docker', [
     'compose', '-f', 'infra/compose.dev.yml', 'exec', '-T', 'postgres',
@@ -65,10 +86,50 @@ try {
     stdio: 'inherit',
   })
   if (result.error) throw result.error
-  process.exitCode = result.status ?? 1
+  if (result.status !== 0) throw new Error('Service dependency checks failed')
+  const catalog = spawnSync(process.execPath, ['scripts/check-catalog-http.mjs'], {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+  })
+  if (catalog.error) throw catalog.error
+  if (catalog.status !== 0) throw new Error('Medusa catalog checks failed')
+
+  if (!(await isStorefrontHealthy())) {
+    const keyResult = spawnSync('docker', [
+      'compose', '-f', 'infra/compose.dev.yml', 'exec', '-T', 'postgres',
+      'psql', '-t', '-A', '-U', 'bangon', '-d', 'bangon', '-c',
+      "select token from api_key where title like '%Demo Storefront Key' and type='publishable' and deleted_at is null and revoked_at is null limit 1",
+    ], { cwd: process.cwd(), encoding: 'utf8' })
+    const key = keyResult.stdout?.trim()
+    if (keyResult.error || keyResult.status !== 0 || !key?.startsWith('pk_')) {
+      throw new Error('Could not resolve local demo catalog key')
+    }
+    const command = process.platform === 'win32' ? 'cmd.exe' : 'pnpm'
+    const args = process.platform === 'win32'
+      ? ['/d', '/c', 'pnpm.cmd', '--dir', 'apps/storefront', 'run', 'dev']
+      : ['--dir', 'apps/storefront', 'run', 'dev']
+    storefront = spawn(command, args, {
+      cwd: process.cwd(),
+      detached: process.platform !== 'win32',
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        MEDUSA_PUBLISHABLE_KEY: key,
+        BACKEND_URL: 'http://127.0.0.1:9000',
+      },
+    })
+    await waitForStorefront(storefront)
+  }
+  const bff = spawnSync(process.execPath, ['scripts/check-bff-catalog.mjs'], {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+  })
+  if (bff.error) throw bff.error
+  process.exitCode = bff.status ?? 1
 } catch (error) {
   console.error(`FAIL integration runner: ${error.message}`)
   process.exitCode = 1
 } finally {
+  stopProcessTree(storefront)
   stopProcessTree(backend)
 }

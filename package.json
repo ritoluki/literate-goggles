@@ -17,7 +17,7 @@
   },
   "scripts": {
     "doctor": "node scripts/doctor.mjs",
-    "dev": "pnpm --parallel --filter @ban-gon/backend --filter @ban-gon/storefront run dev",
+    "dev": "node scripts/dev.mjs",
     "dev:backend": "pnpm --filter @ban-gon/backend run dev",
     "lint": "pnpm --recursive --if-present run lint",
     "typecheck": "pnpm --recursive --if-present run typecheck",

@@ -1,0 +1,11 @@
+# ADR-0002 — Catalog đọc mới, chưa có snapshot ứng dụng
+- Status: ACCEPTED (local P2)
+- Ngày, người đề xuất: 2026-09-25, coding agent; không cần owner gate vì không đổi hành vi mua hàng.
+- Bối cảnh và yêu cầu FR/AT: FR-02/03, AT-02/03/04/43; catalog v1 tối đa 1.000 sản phẩm, Admin sửa phải phản ánh lên API.
+- Các phương án: snapshot public TTL tối đa 60 giây + event invalidation; hoặc Query Medusa mới mỗi request, không có cache ứng dụng.
+- Quyết định và lý do: chọn đọc mới mỗi request ở P2. Medusa Query lấy toàn bộ published products theo trang tối đa 1.000, tính giá theo region VND, inventory theo sales channel, rồi lọc và phân trang ở ứng dụng. Backend và Next BFF trả `Cache-Control: no-store`; không có snapshot ứng dụng để invalidate.
+- Trade-off/chi phí/rủi ro: tăng DB/Redis read traffic; load test P6 phải đo. Nếu vượt mục tiêu, thêm snapshot tối đa 60 giây hoặc tagged invalidation kèm test Admin product/price/stock edit. Không tự tăng giới hạn 1.000.
+- Tác động auth/PII/money/deploy: catalog chỉ public product DTO, không cart/customer; publishable key gắn channel; tiền/tồn vẫn do Medusa quyết định. BFF giữ key server-side.
+- Tài liệu chính thức + version: Medusa 2.21.1 Query pagination, price context, variant availability và publishable-key context; Next 16 App Router route handler/fetch no-store. URL cụ thể ở `state/MEDUSA-API-MAP.md`.
+- Kế hoạch migration/rollback: không có migration DB. Rollback route ứng dụng cùng release; không xóa data.
+- Test và bằng chứng: `pnpm test:integration` kiểm tra 20 sản phẩm eligible, trang 12+8, wrong-channel key bị chặn, BFF no-store; `verify-catalog-freshness.ts` sửa/khôi phục title fixture qua workflow và chứng minh Query phản ánh ngay.
