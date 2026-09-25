@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-25**. Pushed base commit: `b215df2`; T012 đang ở worktree.
+Lần xác minh: **2026-09-26**. Pushed base commit: `c4d05ed`; T013 đang ở worktree.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -24,7 +24,12 @@ Lần xác minh: **2026-09-25**. Pushed base commit: `b215df2`; T012 đang ở w
 | T012 ownership helper unit | PASS | Jest 29 | `pnpm test:unit` exit 0 | 5 session cases: malformed, expired, cart đúng/sai, unbound và middleware thiếu session; tổng backend 9/9 |
 | T012 Redis session limiter | PASS | Redis 7.4.5 local | `pnpm --filter @ban-gon/backend run verify:session-rate-limit` exit 0 | Synthetic IP: 10 lần đầu allow, lần 11 deny trong cùng window; không tạo DB session |
 | T012 full verify | PASS | Node/Medusa/Next/Docker local | `pnpm verify` exit 0 (2026-09-25) | doctor, zero-warning lint, typecheck, unit backend 9/9, rules fixture 60, integration DB/HTTP, Next+Medusa/admin build |
-| T012 cart cross-session/CSRF write | NOT_RUN | — | — | T013 chưa có cart write; phải chạy AT-08/AT-10/AT-52 với giỏ thực, không coi helper unit là đủ |
+| T012 cart cross-session/CSRF write | PASS | Medusa + Next + PostgreSQL local | `pnpm test:integration` exit 0 (2026-09-26) | Session B không xem/sửa line của A; CSRF và cross-Origin bị 403; body có cartId/amount bị 400 |
+| T013 cart + promotion HTTP | PASS | Medusa 2.21.1 + Next 16.3.5 + PostgreSQL/Redis | `pnpm test:integration` exit 0 (2026-09-26) | Lazy cart, refresh recovery; 199000 VND + BGDEMO10 = 179100, qty2 = 358200; remove promo = 398000; invalid code 409/no total change; delete line total0 |
+| T013 quantity/locking | PASS | Core addToCartWorkflow + Redis locking | `pnpm test:integration` exit 0 | Strict 1–10; hai adds song song qty5 vào cart qty1: một 200, một 409; cuối cùng qty6; hook chạy sau core lock |
+| T013 rate limits | PASS | Redis 7.4.5 + Medusa middleware | `verify:session-rate-limit` và `pnpm test:integration` exit 0 | 20 write/session/min allow, lần21 trả 429 từ backend; session create 10/11 vẫn PASS |
+| T013 seed promotion idempotence | PASS | PostgreSQL local synthetic fixture | `pnpm db:seed:demo` lần hai exit 0; SQL count | 0 product mới, 24 cũ; đúng một BGDEMO10 active; không reset dữ liệu/stock |
+| T013 full checks | PASS | Node 22.13.0 + Medusa/Next local | `pnpm verify` exit 0; sau hook chạy lại `pnpm lint`, `pnpm typecheck`, `pnpm test:integration` đều exit 0 | doctor/unit9/9/offline60/health/Medusa+Next build PASS; race test chạy ở integration cuối |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

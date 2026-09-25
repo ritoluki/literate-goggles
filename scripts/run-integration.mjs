@@ -143,7 +143,14 @@ try {
     env: authEnv,
   })
   if (session.error) throw session.error
-  process.exitCode = session.status ?? 1
+  if (session.status !== 0) throw new Error('Session checks failed')
+  const cart = spawnSync(process.execPath, ['scripts/check-cart-http.mjs'], {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+    env: authEnv,
+  })
+  if (cart.error) throw cart.error
+  process.exitCode = cart.status ?? 1
 } catch (error) {
   console.error(`FAIL integration runner: ${error.message}`)
   process.exitCode = 1

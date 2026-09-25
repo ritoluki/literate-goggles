@@ -25,4 +25,4 @@ Hiện không có blocker kỹ thuật đang mở cho local P2.
 ## Gaps không phải blocker
 
 - E2E browser, security, load, backup/restore và live Jev vẫn NOT_RUN theo phase tương ứng.
-- Git `origin/main` đã nhận commit `b215df2`; T012 chưa commit/push; remote CI run chưa xác minh trong phiên này.
+- Git `origin/main` đã nhận commit `c4d05ed` (T012); T013 đã PASS local, đang chờ commit/push; remote CI run chưa xác minh trong phiên này.

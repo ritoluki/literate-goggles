@@ -8,6 +8,7 @@ import {
   createApiKeysWorkflow,
   createProductCategoriesWorkflow,
   createProductsWorkflow,
+  createPromotionsWorkflow,
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createStockLocationsWorkflow,
@@ -51,6 +52,7 @@ const DEMO_CHANNEL_NAME = "Bàn Gọn Storefront (Demo)"
 const DEMO_LOCATION_NAME = "Bàn Gọn Demo Warehouse"
 const DEMO_REGION_NAME = "Vietnam Demo"
 const DEMO_API_KEY_TITLE = "Bàn Gọn Demo Storefront Key"
+const DEMO_PROMOTION_CODE = "BGDEMO10"
 const categoryName = (key: string) => key.split("-")
   .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
   .join(" ")
@@ -315,6 +317,43 @@ export default async function seedDemoProducts({ container }: ExecArgs) {
   if (inventoryLevels.length) {
     await createInventoryLevelsWorkflow(container).run({
       input: { inventory_levels: inventoryLevels },
+    })
+  }
+
+  const { data: promotions } = await query.graph({
+    entity: 'promotion',
+    fields: ['id', 'code', 'status', 'type', 'metadata',
+      'application_method.type', 'application_method.target_type',
+      'application_method.value', 'application_method.currency_code'],
+    filters: { code: DEMO_PROMOTION_CODE },
+  })
+  const existingPromotion = promotions[0]
+  if (existingPromotion) {
+    const method = existingPromotion.application_method
+    if (existingPromotion.metadata?.fixture !== 'catalog.seed.json' ||
+      existingPromotion.status !== 'active' || existingPromotion.type !== 'standard' ||
+      method?.type !== 'percentage' || method.target_type !== 'items' ||
+      Number(method.value) !== 10 || method.currency_code !== 'vnd') {
+      throw new MedusaError(MedusaError.Types.INVALID_DATA,
+        'Demo promotion code conflicts with existing configuration; refusing overwrite.')
+    }
+  } else {
+    await createPromotionsWorkflow(container).run({
+      input: {
+        promotionsData: [{
+          code: DEMO_PROMOTION_CODE,
+          type: 'standard',
+          status: 'active',
+          metadata: { fixture: 'catalog.seed.json', demo: true },
+          application_method: {
+            type: 'percentage',
+            target_type: 'items',
+            allocation: 'across',
+            value: 10,
+            currency_code: 'vnd',
+          },
+        }],
+      },
     })
   }
 
