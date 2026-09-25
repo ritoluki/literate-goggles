@@ -1,0 +1,11 @@
+# ADR-XXX — [quyết định]
+- Status: PROPOSED / ACCEPTED / SUPERSEDED
+- Ngày, người đề xuất, người duyệt (nếu gate):
+- Bối cảnh và yêu cầu FR/AT:
+- Các phương án:
+- Quyết định và lý do:
+- Trade-off/chi phí/rủi ro:
+- Tác động auth/PII/money/deploy:
+- Tài liệu chính thức + version:
+- Kế hoạch migration/rollback:
+- Test và bằng chứng bắt buộc:

@@ -1,0 +1,13 @@
+# INC-XXX — [sự cố]
+- Severity/timezone/start time:
+- User impact / phạm vi dữ liệu/đơn:
+- Detection / request IDs (không PII):
+- Assigned operator:
+- Timeline sự kiện đã xác nhận:
+- Mitigation / kill switches / owner approvals:
+- Data reconciliation / duplicate order/email checks:
+- Root cause (nếu chưa biết ghi UNKNOWN):
+- Restore/rollback actions với evidence:
+- Recovery time / RPO thực:
+- Follow-up tasks / deadline / assignee:
+- Truyền thông khách hàng khi cần (owner duyệt):

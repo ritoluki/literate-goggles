@@ -1,0 +1,13 @@
+{
+  "mode": "synthetic-fixture",
+  "liveVerified": false,
+  "networkCalls": 0,
+  "answers": {
+    "primary_candidate": {
+      "choice": "c01",
+      "topProbability": 0.85,
+      "margin": 0.75,
+      "confidence": 0.78
+    }
+  }
+}

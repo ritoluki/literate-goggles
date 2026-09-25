@@ -1,0 +1,127 @@
+{
+  "kind": "custom-project-design",
+  "implementationStatus": "NOT_IMPLEMENTED",
+  "source": "docs/05-api-contracts.md",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/v1/catalog",
+      "inputSummary": "q/category/color/minPriceVnd/maxPriceVnd/inStock/sort/page/limit",
+      "outputPolicy": "products[], total, page; region/channel từ config server"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/products/:handle",
+      "inputSummary": "handle validated",
+      "outputPolicy": "ProductDetail published hoặc404"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/session",
+      "inputSummary": "empty body, Origin hợp lệ",
+      "outputPolicy": "tạo cookie, csrfToken; không trả raw session token"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/cart",
+      "inputSummary": "cookie",
+      "outputPolicy": "cart hoặc empty snapshot; không nhận cartId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/cart/items",
+      "inputSummary": "variantId, quantity",
+      "outputPolicy": "authoritative cart"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/cart/items/:lineId",
+      "inputSummary": "quantity",
+      "outputPolicy": "owner-checked cart"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/cart/items/:lineId",
+      "inputSummary": "none",
+      "outputPolicy": "owner-checked cart"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/cart/promotion",
+      "inputSummary": "code",
+      "outputPolicy": "cart"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/cart/promotion",
+      "inputSummary": "none",
+      "outputPolicy": "cart"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/checkout/address",
+      "inputSummary": "email, address",
+      "outputPolicy": "updated cart + available shipping"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/checkout/shipping-options",
+      "inputSummary": "cookie",
+      "outputPolicy": "eligible shipping options"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/checkout/shipping",
+      "inputSummary": "shippingOptionId",
+      "outputPolicy": "cart totals"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/checkout/review",
+      "inputSummary": "method:\"cod\"",
+      "outputPolicy": "signed reviewToken, expiresAt, cart summary"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/checkout/complete",
+      "inputSummary": "reviewToken; Idempotency-Key",
+      "outputPolicy": "order result hoặc pending; không nhận amount"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/checkout/status/:intentId",
+      "inputSummary": "owner cookie",
+      "outputPolicy": "pending/succeeded/failed + safe result"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/orders/:reference",
+      "inputSummary": "owner cookie",
+      "outputPolicy": "permitted confirmation; not public lookup"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/advisor",
+      "inputSummary": "preferences, optional message, clientTurnId",
+      "outputPolicy": "AdvisorResponse normalized"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/advisor/preferences",
+      "inputSummary": "cookie",
+      "outputPolicy": "clears advisor only"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health/live",
+      "inputSummary": "none",
+      "outputPolicy": "minimal alive"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health/ready",
+      "inputSummary": "none",
+      "outputPolicy": "minimal readiness; no secrets"
+    }
+  ]
+}

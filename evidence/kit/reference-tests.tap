@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: valid synthetic fixture is accepted
+ok 1 - valid synthetic fixture is accepted
+  ---
+  duration_ms: 1.362052
+  type: 'test'
+  ...
+# Subtest: offline mode performs no network calls
+ok 2 - offline mode performs no network calls
+  ---
+  duration_ms: 6.98591
+  type: 'test'
+  ...
+# Subtest: a paid model request is blocked
+ok 3 - a paid model request is blocked
+  ---
+  duration_ms: 0.437452
+  type: 'test'
+  ...
+# Subtest: extra answer keys rejected
+ok 4 - extra answer keys rejected
+  ---
+  duration_ms: 0.157819
+  type: 'test'
+  ...
+# Subtest: unknown candidate rejected
+ok 5 - unknown candidate rejected
+  ---
+  duration_ms: 0.248196
+  type: 'test'
+  ...
+# Subtest: missing probability option rejected
+ok 6 - missing probability option rejected
+  ---
+  duration_ms: 0.191671
+  type: 'test'
+  ...
+# Subtest: invalid probability -0.1 rejected
+ok 7 - invalid probability -0.1 rejected
+  ---
+  duration_ms: 0.198882
+  type: 'test'
+  ...
+# Subtest: invalid probability 1.1 rejected
+ok 8 - invalid probability 1.1 rejected
+  ---
+  duration_ms: 0.330541
+  type: 'test'
+  ...
+# Subtest: invalid probability NaN rejected
+ok 9 - invalid probability NaN rejected
+  ---
+  duration_ms: 0.292833
+  type: 'test'
+  ...
+# Subtest: invalid probability Infinity rejected
+ok 10 - invalid probability Infinity rejected
+  ---
+  duration_ms: 0.302659
+  type: 'test'
+  ...
+# Subtest: invalid probability 0.85 rejected
+ok 11 - invalid probability 0.85 rejected
+  ---
+  duration_ms: 0.253224
+  type: 'test'
+  ...
+# Subtest: incorrect sum rejected
+ok 12 - incorrect sum rejected
+  ---
+  duration_ms: 0.248566
+  type: 'test'
+  ...
+# Subtest: choice must be highest probability
+ok 13 - choice must be highest probability
+  ---
+  duration_ms: 0.141154
+  type: 'test'
+  ...
+# Subtest: invalid confidence rejected
+ok 14 - invalid confidence rejected
+  ---
+  duration_ms: 0.12574
+  type: 'test'
+  ...
+# Subtest: low-confidence response rejected
+ok 15 - low-confidence response rejected
+  ---
+  duration_ms: 0.130377
+  type: 'test'
+  ...
+# Subtest: NONE is not a usable primary recommendation
+ok 16 - NONE is not a usable primary recommendation
+  ---
+  duration_ms: 0.12537
+  type: 'test'
+  ...
+# Subtest: live requires explicit approval even with key
+ok 17 - live requires explicit approval even with key
+  ---
+  duration_ms: 6.600957
+  type: 'test'
+  ...
+# Subtest: live requires API key
+ok 18 - live requires API key
+  ---
+  duration_ms: 2.854654
+  type: 'test'
+  ...
+# Subtest: mock transport proves endpoint/model/no retry, not actual API availability
+ok 19 - mock transport proves endpoint/model/no retry, not actual API availability
+  ---
+  duration_ms: 19.170484
+  type: 'test'
+  ...
+# Subtest: HTTP429 is surfaced without a retry or paid fallback
+ok 20 - HTTP429 is surfaced without a retry or paid fallback
+  ---
+  duration_ms: 3.233968
+  type: 'test'
+  ...
+# Subtest: HTML200 is rejected
+ok 21 - HTML200 is rejected
+  ---
+  duration_ms: 0.335949
+  type: 'test'
+  ...
+# Subtest: malformed JSON rejected
+ok 22 - malformed JSON rejected
+  ---
+  duration_ms: 0.326885
+  type: 'test'
+  ...
+# Subtest: oversized streaming body rejected without trusting content-length
+ok 23 - oversized streaming body rejected without trusting content-length
+  ---
+  duration_ms: 0.465044
+  type: 'test'
+  ...
+# Subtest: oversized declared body rejected
+ok 24 - oversized declared body rejected
+  ---
+  duration_ms: 0.366896
+  type: 'test'
+  ...
+# Subtest: network failure sanitized
+ok 25 - network failure sanitized
+  ---
+  duration_ms: 3.523056
+  type: 'test'
+  ...
+# Subtest: timeout abort is sanitized and not retried
+ok 26 - timeout abort is sanitized and not retried
+  ---
+  duration_ms: 6.296806
+  type: 'test'
+  ...
+# Subtest: request fixture has no raw message or persistent identifiers
+ok 27 - request fixture has no raw message or persistent identifiers
+  ---
+  duration_ms: 0.230439
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104.758193

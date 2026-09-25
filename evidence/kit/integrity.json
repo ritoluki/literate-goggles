@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "scope": "documentation-and-synthetic-fixtures-only",
+  "checks": 431,
+  "products": 24,
+  "variants": 48,
+  "evalCases": 60,
+  "applicationTestsRun": false,
+  "liveApiCalls": 0
+}

@@ -1,0 +1,13 @@
+# Phase PX — báo cáo
+- SHA/env/runtime/timestamp:
+- Scope/task IDs:
+- Thay đổi chính và paths:
+- Lệnh đã chạy / exit codes:
+- Test counts PASS/FAIL/SKIP với lý do:
+- Evidence links:
+- FR/AT đã đạt:
+- FR/AT chưa đạt và nguyên nhân:
+- Live provider/deploy: NOT_RUN nếu chưa thực hiện:
+- Human approvals dùng trong phase:
+- Quyết định mới/ADR:
+- Bước tiếp theo:

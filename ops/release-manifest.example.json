@@ -1,0 +1,41 @@
+{
+  "kind": "release-approval-template",
+  "releaseSha": null,
+  "environment": null,
+  "createdAt": null,
+  "images": {
+    "storefrontDigest": null,
+    "backendDigest": null
+  },
+  "versionsFile": "state/VERSIONS.md",
+  "migration": {
+    "id": null,
+    "compatibleWithPreviousRelease": null,
+    "verifiedEvidence": null
+  },
+  "ai": {
+    "provider": "rules",
+    "model": "jev-1.13-free",
+    "liveVerified": false,
+    "paidFallback": false
+  },
+  "gates": {
+    "budgetApproved": false,
+    "sellerAndPoliciesApproved": false,
+    "uatApproved": false,
+    "backupRestoreVerified": false,
+    "securityVerified": false,
+    "ownerLaunchApproved": false
+  },
+  "operations": {
+    "operator": null,
+    "rollbackReleaseSha": null,
+    "backupReference": null,
+    "rpoHoursApproved": null,
+    "rtoHoursApproved": null
+  },
+  "approvedBudgetUsdMonthly": null,
+  "checkoutLiveApproved": false,
+  "approvedBy": null,
+  "approvedAt": null
+}

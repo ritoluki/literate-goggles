@@ -1,0 +1,11 @@
+# CR-XXX — [yêu cầu thay đổi]
+- Người yêu cầu/ngày:
+- Yêu cầu mới so với baseline:
+- Mục đích và tiêu chí nghiệm thu:
+- Phạm vi bị ảnh hưởng:
+- Data/privacy/money/security impact:
+- Chi phí/tài khoản/quyền mới:
+- Dependencies và kế hoạch thực hiện:
+- Có làm chậm milestone nào:
+- Owner approval khi cần:
+- Không bắt đầu phần có chi phí/rủi ro trước approval.

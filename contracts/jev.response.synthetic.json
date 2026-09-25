@@ -1,0 +1,19 @@
+{
+  "model": "synthetic-fixture-not-a-live-model",
+  "answers": {
+    "primary_candidate": {
+      "type": "choice",
+      "choice": "c01",
+      "probabilities": {
+        "c01": 0.85,
+        "c02": 0.1,
+        "NONE": 0.05
+      },
+      "confidence": 0.78
+    }
+  },
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  }
+}

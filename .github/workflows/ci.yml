@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DATABASE_URL: postgres://bangon:bangon_local_only@127.0.0.1:5433/bangon
+      REDIS_URL: redis://127.0.0.1:6380
+      STORE_CORS: http://127.0.0.1:3000
+      ADMIN_CORS: http://127.0.0.1:9000
+      AUTH_CORS: http://127.0.0.1:3000
+      JWT_SECRET: ci-only-not-for-production
+      COOKIE_SECRET: ci-only-not-for-production
+      APP_MODE: demo
+      AI_PROVIDER: rules
+      EMAIL_MODE: local
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.6.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm infra:up
+      - run: pnpm db:migrate
+      - run: pnpm db:seed:demo
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test:eval:offline
+      - run: pnpm test:integration
+      - run: pnpm build
+      - name: Stop local services
+        if: always()
+        run: pnpm infra:down

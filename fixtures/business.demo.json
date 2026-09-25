@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "appMode": "demo",
+  "notApprovedForLive": true,
+  "brand": {
+    "name": "Bàn Gọn",
+    "status": "synthetic-placeholder"
+  },
+  "locale": "vi-VN",
+  "currency": "vnd",
+  "countryCode": "vn",
+  "regionKey": "vn-demo",
+  "salesChannelKey": "storefront-demo",
+  "stockLocationKey": "warehouse-demo",
+  "shipping": {
+    "flatFeeVnd": 30000,
+    "freeAtDiscountedMerchandiseSubtotalVnd": 500000,
+    "eligibleCountryCodes": [
+      "vn"
+    ],
+    "realServiceAreaApproved": false
+  },
+  "tax": {
+    "demoRatePercent": 0,
+    "notLegalTaxDetermination": true
+  },
+  "payment": {
+    "method": "cod",
+    "providerRegistryId": null,
+    "markPaidOnOrderCreation": false
+  },
+  "testPromotion": {
+    "code": "DEMO10",
+    "percentage": 10,
+    "scope": "merchandise",
+    "demoOnly": true
+  },
+  "seller": {
+    "legalName": null,
+    "address": null,
+    "phone": null,
+    "email": null
+  },
+  "checkoutLiveApproved": false,
+  "mail": {
+    "mode": "local-sink",
+    "externalRecipientsAllowed": false
+  },
+  "ai": {
+    "provider": "rules",
+    "providerApproved": false,
+    "allowPaidFallback": false
+  }
+}

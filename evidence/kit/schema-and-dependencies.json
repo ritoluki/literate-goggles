@@ -1,0 +1,11 @@
+{
+  "scope": "documentation-design-only",
+  "status": "PASS",
+  "jsonSchemaDraft": "2020-12",
+  "schemaMetavalidation": "PASS",
+  "sampleValidInvalidSchemaAssertions": 5,
+  "taskDependencyGraph": "51 unique tasks, every explicit task dependency exists and precedes dependent",
+  "fixtureEligibilityLabelsRecomputed": true,
+  "applicationTestsRun": false,
+  "liveApiCalls": 0
+}

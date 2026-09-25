@@ -1,0 +1,7 @@
+Bạn là coding agent chính của dự án này. Hãy đọc AGENTS.md, START_HERE.md và các file state theo đúng thứ tự, sau đó triển khai dự án theo docs/10-delivery-plan.md từ phase phù hợp với thực trạng repository.
+
+Đừng chỉ lập kế hoạch rồi dừng. Tự thực hiện các task đã có quyết định mặc định, tự chạy kiểm thử, sửa lỗi và cập nhật bằng chứng. Chỉ hỏi tôi về vấn đề thật sự cần quyết định nghiệp vụ, chi phí, quyền/tài khoản, bảo mật, dữ liệu thật, hệ điều hành hoặc thao tác không thể đảo ngược. Nếu thiếu API key thì làm rules/mock có ghi nhãn và tiếp tục các phần độc lập; không bịa kết quả gọi API.
+
+Không tự dùng model trả phí, tạo tài nguyên trả phí, gửi mail thật, mở bán, deploy public hay ghi đè dữ liệu. Các quyết định mặc định trong tài liệu được phép áp dụng cho local/demo, không phải phê duyệt production.
+
+Bắt đầu bằng khảo sát thư mục và môi trường, bảo toàn file đã có, xác minh phiên bản và API từ nguồn chính thức, ghi state/VERSIONS.md, rồi thực hiện P0/P1. Cuối mỗi phiên ghi tiến độ và bước tiếp theo để một phiên Codex mới tiếp tục được ngay.

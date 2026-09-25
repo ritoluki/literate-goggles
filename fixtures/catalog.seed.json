@@ -1,0 +1,1396 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic-demo-fixture",
+  "notForLiveImport": true,
+  "products": [
+    {
+      "seedKey": "product-01",
+      "handle": "tham-ban-co-ban",
+      "title": "Thảm bàn Cơ Bản",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "desk-mat",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "comfort"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "synthetic-fabric",
+        "dimensions_mm": [
+          600,
+          300,
+          3
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-01-1",
+          "sku": "BG-DEMO-01-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 199000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 22
+        },
+        {
+          "seedKey": "variant-01-2",
+          "sku": "BG-DEMO-01-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 229000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 23
+        }
+      ]
+    },
+    {
+      "seedKey": "product-02",
+      "handle": "tham-ban-rong",
+      "title": "Thảm bàn Rộng",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "desk-mat",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "comfort"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "large"
+        ],
+        "material": "synthetic-fabric",
+        "dimensions_mm": [
+          800,
+          400,
+          3
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-02-1",
+          "sku": "BG-DEMO-02-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 349000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 23
+        },
+        {
+          "seedKey": "variant-02-2",
+          "sku": "BG-DEMO-02-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 369000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 24
+        }
+      ]
+    },
+    {
+      "seedKey": "product-03",
+      "handle": "tham-ban-vai",
+      "title": "Thảm bàn Vải",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "desk-mat",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "comfort",
+          "gift"
+        ],
+        "styles": [
+          "natural"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "synthetic-fabric",
+        "dimensions_mm": [
+          700,
+          350,
+          3
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-03-1",
+          "sku": "BG-DEMO-03-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 279000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 24
+        },
+        {
+          "seedKey": "variant-03-2",
+          "sku": "BG-DEMO-03-BROWN",
+          "options": {
+            "color": "brown"
+          },
+          "priceVnd": 299000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 25
+        }
+      ]
+    },
+    {
+      "seedKey": "product-04",
+      "handle": "tham-ban-gon",
+      "title": "Thảm bàn Gọn",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "desk-mat",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "small-desk",
+          "portable"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "synthetic-fabric",
+        "dimensions_mm": [
+          450,
+          250,
+          3
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-04-1",
+          "sku": "BG-DEMO-04-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 149000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 25
+        },
+        {
+          "seedKey": "variant-04-2",
+          "sku": "BG-DEMO-04-GREEN",
+          "options": {
+            "color": "green"
+          },
+          "priceVnd": 159000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 26
+        }
+      ]
+    },
+    {
+      "seedKey": "product-05",
+      "handle": "tham-ban-thu-cong",
+      "title": "Thảm bàn Thủ Công",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "draft",
+      "categoryKey": "desk-mat",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "gift"
+        ],
+        "styles": [
+          "natural"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "synthetic-fabric",
+        "dimensions_mm": [
+          600,
+          300,
+          3
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-05-1",
+          "sku": "BG-DEMO-05-BROWN",
+          "options": {
+            "color": "brown"
+          },
+          "priceVnd": 259000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 26
+        },
+        {
+          "seedKey": "variant-05-2",
+          "sku": "BG-DEMO-05-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 279000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 27
+        }
+      ]
+    },
+    {
+      "seedKey": "product-06",
+      "handle": "tham-ban-lon",
+      "title": "Thảm bàn Lớn",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "desk-mat",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "comfort"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "large"
+        ],
+        "material": "synthetic-fabric",
+        "dimensions_mm": [
+          900,
+          450,
+          4
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-06-1",
+          "sku": "BG-DEMO-06-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 549000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 27
+        },
+        {
+          "seedKey": "variant-06-2",
+          "sku": "BG-DEMO-06-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 579000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 28
+        }
+      ]
+    },
+    {
+      "seedKey": "product-07",
+      "handle": "gia-laptop-gap",
+      "title": "Giá laptop Gấp",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "laptop-stand",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "portable",
+          "small-desk"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small",
+          "medium"
+        ],
+        "material": "aluminum-demo",
+        "dimensions_mm": [
+          240,
+          170,
+          60
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-07-1",
+          "sku": "BG-DEMO-07-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 249000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 28
+        },
+        {
+          "seedKey": "variant-07-2",
+          "sku": "BG-DEMO-07-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 269000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 1
+        }
+      ]
+    },
+    {
+      "seedKey": "product-08",
+      "handle": "gia-laptop-nang",
+      "title": "Giá laptop Nâng",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "laptop-stand",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "small-desk"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small",
+          "medium"
+        ],
+        "material": "aluminum-demo",
+        "dimensions_mm": [
+          260,
+          230,
+          150
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-08-1",
+          "sku": "BG-DEMO-08-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 449000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 29
+        },
+        {
+          "seedKey": "variant-08-2",
+          "sku": "BG-DEMO-08-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 479000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 30
+        }
+      ]
+    },
+    {
+      "seedKey": "product-09",
+      "handle": "gia-laptop-go",
+      "title": "Giá laptop Gỗ",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "laptop-stand",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "gift"
+        ],
+        "styles": [
+          "natural"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "wood-demo",
+        "dimensions_mm": [
+          300,
+          250,
+          120
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-09-1",
+          "sku": "BG-DEMO-09-BROWN",
+          "options": {
+            "color": "brown"
+          },
+          "priceVnd": 399000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 30
+        },
+        {
+          "seedKey": "variant-09-2",
+          "sku": "BG-DEMO-09-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 429000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 20
+        }
+      ]
+    },
+    {
+      "seedKey": "product-10",
+      "handle": "gia-laptop-du-lich",
+      "title": "Giá laptop Du Lịch",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "laptop-stand",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "portable",
+          "small-desk"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "polymer-demo",
+        "dimensions_mm": [
+          220,
+          150,
+          50
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-10-1",
+          "sku": "BG-DEMO-10-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 199000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 20
+        },
+        {
+          "seedKey": "variant-10-2",
+          "sku": "BG-DEMO-10-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 219000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 21
+        }
+      ]
+    },
+    {
+      "seedKey": "product-11",
+      "handle": "gia-laptop-cao",
+      "title": "Giá laptop Cao",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "laptop-stand",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "large"
+        ],
+        "material": "aluminum-demo",
+        "dimensions_mm": [
+          320,
+          260,
+          200
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-11-1",
+          "sku": "BG-DEMO-11-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 649000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 21
+        },
+        {
+          "seedKey": "variant-11-2",
+          "sku": "BG-DEMO-11-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 679000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 22
+        }
+      ]
+    },
+    {
+      "seedKey": "product-12",
+      "handle": "gia-laptop-chua-dinh-gia",
+      "title": "Giá laptop Chưa Định Giá",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "laptop-stand",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "small-desk"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "polymer-demo",
+        "dimensions_mm": [
+          240,
+          200,
+          100
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-12-1",
+          "sku": "BG-DEMO-12-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": null,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 22
+        },
+        {
+          "seedKey": "variant-12-2",
+          "sku": "BG-DEMO-12-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": null,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 23
+        }
+      ]
+    },
+    {
+      "seedKey": "product-13",
+      "handle": "kep-day-bo",
+      "title": "Bộ kẹp dây",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "cable-organizer",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize",
+          "small-desk"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "silicone-demo",
+        "dimensions_mm": [
+          100,
+          25,
+          15
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-13-1",
+          "sku": "BG-DEMO-13-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 59000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 23
+        },
+        {
+          "seedKey": "variant-13-2",
+          "sku": "BG-DEMO-13-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 69000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 24
+        }
+      ]
+    },
+    {
+      "seedKey": "product-14",
+      "handle": "hop-giau-day",
+      "title": "Hộp giấu dây",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "cable-organizer",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "polymer-demo",
+        "dimensions_mm": [
+          300,
+          130,
+          120
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-14-1",
+          "sku": "BG-DEMO-14-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 179000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 24
+        },
+        {
+          "seedKey": "variant-14-2",
+          "sku": "BG-DEMO-14-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 199000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 25
+        }
+      ]
+    },
+    {
+      "seedKey": "product-15",
+      "handle": "ong-boc-day",
+      "title": "Ống bọc dây",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "cable-organizer",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small",
+          "medium"
+        ],
+        "material": "fabric-demo",
+        "dimensions_mm": [
+          1000,
+          25,
+          25
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-15-1",
+          "sku": "BG-DEMO-15-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 89000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 25
+        },
+        {
+          "seedKey": "variant-15-2",
+          "sku": "BG-DEMO-15-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 99000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 26
+        }
+      ]
+    },
+    {
+      "seedKey": "product-16",
+      "handle": "day-buoc-gon",
+      "title": "Dây buộc gọn",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "cable-organizer",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize",
+          "portable"
+        ],
+        "styles": [
+          "minimal",
+          "colorful"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "fabric-demo",
+        "dimensions_mm": [
+          150,
+          12,
+          2
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-16-1",
+          "sku": "BG-DEMO-16-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 39000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 26
+        },
+        {
+          "seedKey": "variant-16-2",
+          "sku": "BG-DEMO-16-GREEN",
+          "options": {
+            "color": "green"
+          },
+          "priceVnd": 49000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 27
+        }
+      ]
+    },
+    {
+      "seedKey": "product-17",
+      "handle": "mang-day-duoi-ban",
+      "title": "Máng dây dưới bàn",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "cable-organizer",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "steel-demo",
+        "dimensions_mm": [
+          400,
+          120,
+          100
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-17-1",
+          "sku": "BG-DEMO-17-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 299000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 0
+        },
+        {
+          "seedKey": "variant-17-2",
+          "sku": "BG-DEMO-17-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 319000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 0
+        }
+      ]
+    },
+    {
+      "seedKey": "product-18",
+      "handle": "kep-day-tu",
+      "title": "Kẹp dây Từ",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "cable-organizer",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize",
+          "small-desk"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "polymer-demo",
+        "dimensions_mm": [
+          80,
+          25,
+          15
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-18-1",
+          "sku": "BG-DEMO-18-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 129000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 28
+        },
+        {
+          "seedKey": "variant-18-2",
+          "sku": "BG-DEMO-18-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 139000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 29
+        }
+      ]
+    },
+    {
+      "seedKey": "product-19",
+      "handle": "ong-but",
+      "title": "Ống bút",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "stationery",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize",
+          "writing",
+          "small-desk"
+        ],
+        "styles": [
+          "minimal",
+          "colorful"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "polymer-demo",
+        "dimensions_mm": [
+          80,
+          80,
+          100
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-19-1",
+          "sku": "BG-DEMO-19-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 99000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 29
+        },
+        {
+          "seedKey": "variant-19-2",
+          "sku": "BG-DEMO-19-GREEN",
+          "options": {
+            "color": "green"
+          },
+          "priceVnd": 109000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 30
+        }
+      ]
+    },
+    {
+      "seedKey": "product-20",
+      "handle": "khay-but",
+      "title": "Khay bút",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "stationery",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize",
+          "writing",
+          "gift"
+        ],
+        "styles": [
+          "natural"
+        ],
+        "space_fit": [
+          "small",
+          "medium"
+        ],
+        "material": "wood-demo",
+        "dimensions_mm": [
+          220,
+          100,
+          25
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-20-1",
+          "sku": "BG-DEMO-20-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 149000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 30
+        },
+        {
+          "seedKey": "variant-20-2",
+          "sku": "BG-DEMO-20-BROWN",
+          "options": {
+            "color": "brown"
+          },
+          "priceVnd": 169000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 20
+        }
+      ]
+    },
+    {
+      "seedKey": "product-21",
+      "handle": "so-ghi-chu",
+      "title": "Sổ ghi chú",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "draft",
+      "categoryKey": "stationery",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "writing",
+          "gift",
+          "portable"
+        ],
+        "styles": [
+          "colorful"
+        ],
+        "space_fit": [
+          "small"
+        ],
+        "material": "paper-demo",
+        "dimensions_mm": [
+          210,
+          148,
+          15
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-21-1",
+          "sku": "BG-DEMO-21-GREEN",
+          "options": {
+            "color": "green"
+          },
+          "priceVnd": 79000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 20
+        },
+        {
+          "seedKey": "variant-21-2",
+          "sku": "BG-DEMO-21-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 89000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 21
+        }
+      ]
+    },
+    {
+      "seedKey": "product-22",
+      "handle": "ngan-keo-ban",
+      "title": "Ngăn kéo bàn",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "stationery",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "polymer-demo",
+        "dimensions_mm": [
+          280,
+          220,
+          100
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-22-1",
+          "sku": "BG-DEMO-22-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 259000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 21
+        },
+        {
+          "seedKey": "variant-22-2",
+          "sku": "BG-DEMO-22-GRAY",
+          "options": {
+            "color": "gray"
+          },
+          "priceVnd": 279000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 22
+        }
+      ]
+    },
+    {
+      "seedKey": "product-23",
+      "handle": "gia-tai-lieu",
+      "title": "Giá tài liệu",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "stationery",
+      "salesChannelKeys": [
+        "storefront-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "writing",
+          "organize"
+        ],
+        "styles": [
+          "minimal"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "steel-demo",
+        "dimensions_mm": [
+          250,
+          220,
+          300
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-23-1",
+          "sku": "BG-DEMO-23-BLACK",
+          "options": {
+            "color": "black"
+          },
+          "priceVnd": 219000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 22
+        },
+        {
+          "seedKey": "variant-23-2",
+          "sku": "BG-DEMO-23-WHITE",
+          "options": {
+            "color": "white"
+          },
+          "priceVnd": 239000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 23
+        }
+      ]
+    },
+    {
+      "seedKey": "product-24",
+      "handle": "hop-dung-do",
+      "title": "Hộp đựng đồ",
+      "description": "Dữ liệu tổng hợp để phát triển và kiểm thử. Không phải hàng hóa hoặc thông số bán hàng đã được xác minh.",
+      "status": "published",
+      "categoryKey": "stationery",
+      "salesChannelKeys": [
+        "internal-demo"
+      ],
+      "thumbnail": null,
+      "images": [],
+      "metadata": {
+        "demo": true,
+        "use_cases": [
+          "organize",
+          "gift"
+        ],
+        "styles": [
+          "natural"
+        ],
+        "space_fit": [
+          "medium"
+        ],
+        "material": "wood-demo",
+        "dimensions_mm": [
+          250,
+          180,
+          120
+        ]
+      },
+      "variants": [
+        {
+          "seedKey": "variant-24-1",
+          "sku": "BG-DEMO-24-BEIGE",
+          "options": {
+            "color": "beige"
+          },
+          "priceVnd": 199000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 23
+        },
+        {
+          "seedKey": "variant-24-2",
+          "sku": "BG-DEMO-24-BROWN",
+          "options": {
+            "color": "brown"
+          },
+          "priceVnd": 229000,
+          "currency": "vnd",
+          "manageInventory": true,
+          "allowBackorder": false,
+          "inventoryQuantity": 24
+        }
+      ]
+    }
+  ]
+}

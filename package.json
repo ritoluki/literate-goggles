@@ -1,0 +1,37 @@
+{
+  "name": "ban-gon-commerce",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "jiti": "2.7.0"
+  },
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "dev": "pnpm --parallel --filter @ban-gon/backend --filter @ban-gon/storefront run dev",
+    "dev:backend": "pnpm --filter @ban-gon/backend run dev",
+    "lint": "pnpm --recursive --if-present run lint",
+    "typecheck": "pnpm --recursive --if-present run typecheck",
+    "test:unit": "node --test tests/unit/**/*.test.mjs",
+    "test:integration": "node scripts/run-integration.mjs",
+    "test:e2e": "node scripts/check-service-dependencies.mjs --e2e",
+    "test:eval:offline": "node scripts/rules-eval.mjs",
+    "test:eval:live": "node scripts/not-run.mjs live-eval",
+    "build": "pnpm --recursive --if-present run build",
+    "verify": "pnpm run doctor && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:eval:offline && pnpm test:integration && pnpm build",
+    "infra:up": "docker compose -f infra/compose.dev.yml up -d --wait",
+    "infra:down": "docker compose -f infra/compose.dev.yml down",
+    "db:migrate": "pnpm --dir apps/backend exec medusa db:migrate",
+    "db:seed:demo": "pnpm --dir apps/backend run seed:demo",
+    "release:preflight": "node scripts/release-preflight.mjs"
+  }
+}

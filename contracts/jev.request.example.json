@@ -1,0 +1,15 @@
+{
+  "model": "jev-1.13-free",
+  "state": "{\"preferences\":{\"categoryKey\":\"laptop-stand\",\"maxPriceVnd\":500000,\"useCase\":\"portable\",\"budgetScope\":\"per-item\"},\"candidates\":[{\"id\":\"c01\",\"categoryKey\":\"laptop-stand\",\"color\":\"gray\",\"priceVnd\":249000,\"currency\":\"vnd\",\"useCases\":[\"portable\",\"small-desk\"],\"styles\":[\"minimal\"],\"spaceFit\":[\"small\",\"medium\"]},{\"id\":\"c02\",\"categoryKey\":\"laptop-stand\",\"color\":\"gray\",\"priceVnd\":449000,\"currency\":\"vnd\",\"useCases\":[\"small-desk\"],\"styles\":[\"minimal\"],\"spaceFit\":[\"small\",\"medium\"]}],\"missingFields\":[],\"clarificationCount\":0,\"constraints\":{\"readOnly\":true,\"allCandidatesPrevalidated\":true}}",
+  "questions": {
+    "primary_candidate": {
+      "type": "choice",
+      "instructions": "Select the candidate that best satisfies the normalized preferences. All candidates are prevalidated for price and availability. Prefer matching useCases and styles. Do not infer unlisted product capabilities. Choose NONE only when no supplied candidate is suitable. The response does not authorize any purchase.",
+      "criteria": {
+        "c01": "Candidate c01 in state.candidates.",
+        "c02": "Candidate c02 in state.candidates.",
+        "NONE": "No supplied candidate is suitable."
+      }
+    }
+  }
+}

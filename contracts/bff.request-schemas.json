@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ban Gon custom BFF request schemas",
+  "$comment": "Design input, not an implemented API. Cross-field, UTF-8 byte limits, CSRF and ownership must also be implemented.",
+  "$defs": {
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "categoryKey": {
+          "enum": [
+            "desk-mat",
+            "laptop-stand",
+            "cable-organizer",
+            "stationery"
+          ]
+        },
+        "minPriceVnd": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000000
+        },
+        "maxPriceVnd": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50000000
+        },
+        "color": {
+          "enum": [
+            "black",
+            "gray",
+            "beige",
+            "green",
+            "white",
+            "brown"
+          ]
+        },
+        "useCase": {
+          "enum": [
+            "small-desk",
+            "portable",
+            "organize",
+            "gift",
+            "comfort",
+            "writing"
+          ]
+        },
+        "style": {
+          "enum": [
+            "minimal",
+            "natural",
+            "colorful"
+          ]
+        },
+        "spaceFit": {
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ]
+        },
+        "budgetScope": {
+          "const": "per-item"
+        },
+        "sortPreference": {
+          "enum": [
+            "relevance",
+            "lowest-price"
+          ]
+        }
+      },
+      "required": []
+    },
+    "addCartItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "variantId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "required": [
+        "variantId",
+        "quantity"
+      ]
+    },
+    "updateCartItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "quantity": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10
+        }
+      },
+      "required": [
+        "quantity"
+      ]
+    },
+    "applyPromotion": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "code"
+      ]
+    },
+    "checkoutAddress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 254
+        },
+        "address": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "fullName": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "phone": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 20
+            },
+            "addressLine1": {
+              "type": "string",
+              "minLength": 5,
+              "maxLength": 240
+            },
+            "addressLine2": {
+              "type": "string",
+              "maxLength": 240
+            },
+            "ward": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "city": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100
+            },
+            "postalCode": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "countryCode": {
+              "const": "vn"
+            }
+          },
+          "required": [
+            "fullName",
+            "phone",
+            "addressLine1",
+            "city",
+            "countryCode"
+          ]
+        }
+      },
+      "required": [
+        "email",
+        "address"
+      ]
+    },
+    "checkoutShipping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "shippingOptionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]+$"
+        }
+      },
+      "required": [
+        "shippingOptionId"
+      ]
+    },
+    "checkoutReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "method": {
+          "const": "cod"
+        }
+      },
+      "required": [
+        "method"
+      ]
+    },
+    "checkoutComplete": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "reviewToken": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "reviewToken"
+      ]
+    },
+    "advisor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "preferences": {
+          "$ref": "#/$defs/preferences"
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "clientTurnId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "required": [
+        "preferences",
+        "clientTurnId"
+      ]
+    }
+  }
+}
