@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-26**. T016 pushed commit: `d266fbc`; T017–T019 verified locally, pending this requested push; T020 in progress.
+Lần xác minh: **2026-09-26**. T017–T019 pushed in commit `0ad2c40`; T020 in progress.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|

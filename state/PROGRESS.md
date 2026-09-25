@@ -5,7 +5,7 @@ Trạng thái hiện tại: **P3_COMPLETE / P4_IN_PROGRESS**.
 - Phase đã hoàn thành: P0, P1, P2.
 - Phase đã hoàn thành: P3; T008–T019 đã xong.
 - Phase đang triển khai: P4; task đang làm T020.
-- Last pushed implementation SHA: `d266fbc` (`origin/main`); T015/T016 đã commit/push, T017–T019 đã kiểm chứng local, chưa commit/push.
+- Last pushed implementation SHA: `0ad2c40` (`origin/main`); T017–T019 PDP/cart/policy/SEO đã commit và push.
 - Runtime local: Node 22.13.0, pnpm 12.6.0, Docker Engine 29.8.0, Compose 5.5.1.
 - Local services: PostgreSQL 17.6, Redis 7.4.5, Mailpit 1.26.0 đang healthy.
 - Medusa: 2.21.1, migration và seed fixture đã chạy; backend/admin build PASS.
