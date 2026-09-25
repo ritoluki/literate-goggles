@@ -19,8 +19,8 @@ Không hỏi owner phê duyệt từng task local. T032 có thể BLOCKED bởi 
 | T011 | P2 | Catalog adapter toàn tập và invalidation | T010 | Catalog DTO/retrieval/snapshot/events | Filter trước phân trang; drafts/không giá excluded | FR-02,FR-03 | AT-02,AT-03,AT-04,AT-43 | DONE |
 | T012 | P2 | Session + service-auth + ownership middleware | T009 | BFF middleware/backend guards | Chặn rawStore bypass; session/cookie không leak | FR-04,FR-09 | AT-08,AT-09,AT-10,AT-52 | DONE |
 | T013 | P2 | Cart + promotion API | T011,T012 | BFF cart routes + integration tests | Validate quantities/strict fields/engine total | FR-04,FR-05 | AT-07,AT-11,AT-12,AT-16 | DONE |
-| T014 | P2 | Shipping/COD configuration + API map | T013 | Shipping/tax demo; COD adapter registry map | 30k/500k thresholds; order chưa paid | FR-07,FR-08 | AT-17,AT-18,AT-19,AT-26 | IN_PROGRESS |
-| T015 | P3 | Design system/layout/navigation | T007 | Tokens/components/layout | Responsive mobile/keyboard/focus/empty/error states | FR-01,FR-16 | AT-44,AT-45 | NOT_STARTED |
+| T014 | P2 | Shipping/COD configuration + API map | T013 | Shipping/tax demo; COD adapter registry map | 30k/500k thresholds; order chưa paid | FR-07,FR-08 | AT-17,AT-18,AT-19,AT-26 | DONE |
+| T015 | P3 | Design system/layout/navigation | T007 | Tokens/components/layout | Responsive mobile/keyboard/focus/empty/error states | FR-01,FR-16 | AT-44,AT-45 | IN_PROGRESS |
 | T016 | P3 | Home/catalog/search/filter URL | T011,T015 | Storefront routes/catalog state | URL stable/back; full filtering; error not empty | FR-01,FR-02 | AT-04,AT-05,AT-06 | NOT_STARTED |
 | T017 | P3 | PDP variants/images/availability | T016 | PDP and variant picker | Variant price consistent; sold-out not addable | FR-03 | AT-03,AT-14,AT-51 | NOT_STARTED |
 | T018 | P3 | Cart UI và race-safe mutations | T013,T017 | Cart page/badge; request sequence guards | Refresh persists; late responses not overwrite | FR-04,FR-05 | AT-07,AT-11,AT-16 | NOT_STARTED |

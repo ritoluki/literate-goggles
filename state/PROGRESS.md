@@ -1,10 +1,10 @@
 # Tiến độ triển khai
 
-Trạng thái hiện tại: **P1_COMPLETE / P2_IN_PROGRESS**.
+Trạng thái hiện tại: **P2_COMPLETE / P3_IN_PROGRESS**.
 
-- Phase đã hoàn thành: P0, P1.
-- Phase đang triển khai: P2; T008–T013 đã xong, task đang làm T014.
-- Last pushed implementation SHA: `c4d05ed` (`origin/main`); T013 đã PASS local, chờ commit/push.
+- Phase đã hoàn thành: P0, P1, P2.
+- Phase đang triển khai: P3; T008–T014 đã xong, task đang làm T015.
+- Last pushed implementation SHA: `75cb63c` (`origin/main`); T014 đã PASS local, chờ commit/push.
 - Runtime local: Node 22.13.0, pnpm 12.6.0, Docker Engine 29.8.0, Compose 5.5.1.
 - Local services: PostgreSQL 17.6, Redis 7.4.5, Mailpit 1.26.0 đang healthy.
 - Medusa: 2.21.1, migration và seed fixture đã chạy; backend/admin build PASS.
@@ -27,6 +27,7 @@ Trạng thái hiện tại: **P1_COMPLETE / P2_IN_PROGRESS**.
 | 2026-09-25 | P2 T011 hoàn tất | Query Medusa 21 sources/20 priced eligible; Store route + Next BFF; phân trang 12+8, key/channel guard, strict filters; đọc mới no-store theo ADR-0002; product workflow edit phản ánh rồi restore | `src/search/load-catalog.ts`, `src/api/store/catalog-v1/route.ts`, `apps/storefront/app/api/v1/catalog/route.ts`, `state/MEDUSA-API-MAP.md` | DONE local: unit 4/4, real adapter, cold-start integration, freshness, lint/typecheck/build PASS | T012 session/service-auth/ownership |
 | 2026-09-25 | P2 T012 hoàn tất | Service key cho toàn bộ Store API; BFF session HttpOnly, hash-only DB, Origin/CSRF helper; workflow tạo session; Redis rate limit; middleware và ownership helper | `apps/backend/src/api/middlewares.ts`, `apps/backend/src/identity/`, `apps/storefront/app/api/v1/session/route.ts`, ADR-0003 | DONE: `pnpm verify` PASS; raw Store 6 paths + POST + aliases trả 403; rate limit 10/11; unit 9/9 backend | T013 cart thật và AT-08/10/52 E2E |
 | 2026-09-26 | P2 T013 hoàn tất | Lazy cart gắn session; core workflows add/update/delete; snapshot BigNumber VND; promotion demo BGDEMO10; BFF Origin/CSRF, ownership/context, Redis quota; lock-held quantity hook | `apps/backend/src/cart/`, `apps/backend/src/api/store/bff/cart/`, `apps/storefront/app/api/v1/cart/`, `scripts/check-cart-http.mjs` | DONE local: full verify PASS; integration refresh/cross-session/promo 199000→179100, race qty6, 20/21 quota; seed lại 0 mới và đúng một promo | T014 shipping/tax demo và COD registry |
+| 2026-09-26 | P2 T014 hoàn tất | Seed idempotent set/zone/option VN; rule ship 30k/free từ 500k; sửa cart DTO dùng `item_subtotal`; quote/select engine; synthetic COD order chưa capture rồi cancel | `apps/backend/src/scripts/verify-demo-shipping.ts`, `apps/backend/src/scripts/seed-demo-products.ts`, `state/MEDUSA-API-MAP.md` | DONE local: `pnpm verify` PASS, lint riêng zero warning; 199000+30000=229000, 499999/500000 đúng; US address reject; captured_amount0; seed lần hai set/zone/option mỗi loại 1 | T015 design system/layout/navigation |
 
 ## Ghi chú tiếp tục
 

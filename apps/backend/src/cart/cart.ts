@@ -47,7 +47,7 @@ export async function cartSnapshot(query: Query, cartId: string, channelId: stri
     entity: 'cart',
     fields: [
       'id', 'currency_code', 'updated_at', 'completed_at',
-      'subtotal', 'discount_total', 'shipping_total', 'tax_total', 'total',
+      'item_subtotal', 'discount_total', 'shipping_total', 'tax_total', 'total',
       'items.id', 'items.variant_id', 'items.product_id', 'items.title',
       'items.variant_title', 'items.unit_price', 'items.quantity', 'items.total',
       'shipping_methods.id', 'promotions.code',
@@ -75,7 +75,7 @@ export async function cartSnapshot(query: Query, cartId: string, channelId: stri
     totalVnd: integerAmount(item.total),
     available: Boolean(item.variant_id && (availability[item.variant_id]?.availability ?? 0) > 0),
   }))
-  const subtotalVnd = integerAmount(cart.subtotal)
+  const subtotalVnd = integerAmount(cart.item_subtotal)
   const discountVnd = integerAmount(cart.discount_total)
   const taxVnd = integerAmount(cart.tax_total)
   const totalVnd = integerAmount(cart.total)

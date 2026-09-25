@@ -6,11 +6,14 @@ import { ContainerRegistrationKeys, MedusaError, Modules, ProductStatus } from "
 import {
   createInventoryLevelsWorkflow,
   createApiKeysWorkflow,
+  createLocationFulfillmentSetWorkflow,
   createProductCategoriesWorkflow,
   createProductsWorkflow,
   createPromotionsWorkflow,
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
+  createServiceZonesWorkflow,
+  createShippingOptionsWorkflow,
   createStockLocationsWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
@@ -53,6 +56,9 @@ const DEMO_LOCATION_NAME = "Bàn Gọn Demo Warehouse"
 const DEMO_REGION_NAME = "Vietnam Demo"
 const DEMO_API_KEY_TITLE = "Bàn Gọn Demo Storefront Key"
 const DEMO_PROMOTION_CODE = "BGDEMO10"
+const DEMO_FULFILLMENT_SET_NAME = "Bàn Gọn Demo Delivery"
+const DEMO_SERVICE_ZONE_NAME = "Vietnam Demo Delivery"
+const DEMO_SHIPPING_OPTION_NAME = "Bàn Gọn Demo Standard Shipping"
 const categoryName = (key: string) => key.split("-")
   .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
   .join(" ")
@@ -213,6 +219,90 @@ export default async function seedDemoProducts({ container }: ExecArgs) {
   })
   const shippingProfile = shippingProfiles[0]
   if (!shippingProfile) throw new MedusaError(MedusaError.Types.NOT_FOUND, "No shipping profile exists. Run medusa db:migrate first.")
+
+  const { data: fulfillmentSets } = await query.graph({
+    entity: "fulfillment_set",
+    fields: ["id", "name", "type"],
+  })
+  let demoSet = fulfillmentSets.find((set) => set.name === DEMO_FULFILLMENT_SET_NAME)
+  if (demoSet && demoSet.type !== "shipping") {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Demo fulfillment set has unexpected type.")
+  }
+  if (!demoSet) {
+    await createLocationFulfillmentSetWorkflow(container).run({
+      input: {
+        location_id: demoLocationId,
+        fulfillment_set_data: { name: DEMO_FULFILLMENT_SET_NAME, type: "shipping" },
+      },
+    })
+    const { data } = await query.graph({
+      entity: "fulfillment_set",
+      fields: ["id", "name", "type"],
+    })
+    demoSet = data.find((set) => set.name === DEMO_FULFILLMENT_SET_NAME)
+  }
+  if (!demoSet?.id) {
+    throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, "Demo fulfillment set missing after creation.")
+  }
+
+  const { data: serviceZones } = await query.graph({
+    entity: "service_zone",
+    fields: ["id", "name", "fulfillment_set_id", "geo_zones.type", "geo_zones.country_code"],
+  })
+  let demoZone = serviceZones.find((zone) => zone.name === DEMO_SERVICE_ZONE_NAME)
+  if (demoZone && (demoZone.fulfillment_set_id !== demoSet.id ||
+    !demoZone.geo_zones?.some((geo) => geo?.type === "country" && geo.country_code === "vn"))) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Demo service zone conflicts with expected Vietnam coverage.")
+  }
+  if (!demoZone) {
+    await createServiceZonesWorkflow(container).run({
+      input: { data: [{
+        name: DEMO_SERVICE_ZONE_NAME,
+        fulfillment_set_id: demoSet.id,
+        geo_zones: [{ type: "country", country_code: "vn" }],
+      }] },
+    })
+    const { data } = await query.graph({
+      entity: "service_zone",
+      fields: ["id", "name", "fulfillment_set_id", "geo_zones.type", "geo_zones.country_code"],
+    })
+    demoZone = data.find((zone) => zone.name === DEMO_SERVICE_ZONE_NAME)
+  }
+  if (!demoZone?.id) {
+    throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, "Demo service zone missing after creation.")
+  }
+
+  const { data: shippingOptions } = await query.graph({
+    entity: "shipping_option",
+    fields: ["id", "name", "service_zone_id", "shipping_profile_id", "provider_id", "price_type"],
+  })
+  const demoOption = shippingOptions.find((option) => option.name === DEMO_SHIPPING_OPTION_NAME)
+  if (demoOption && (demoOption.service_zone_id !== demoZone.id ||
+    demoOption.shipping_profile_id !== shippingProfile.id ||
+    demoOption.provider_id !== "manual_manual" || demoOption.price_type !== "flat")) {
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, "Demo shipping option conflicts with expected configuration.")
+  }
+  if (!demoOption) {
+    await createShippingOptionsWorkflow(container).run({
+      input: [{
+        name: DEMO_SHIPPING_OPTION_NAME,
+        service_zone_id: demoZone.id,
+        shipping_profile_id: shippingProfile.id,
+        provider_id: "manual_manual",
+        type: {
+          label: "Standard",
+          description: "Synthetic Vietnam demo shipping",
+          code: "bg_demo_standard",
+        },
+        price_type: "flat",
+        prices: [
+          { currency_code: "vnd", amount: 30000, rules: [] },
+          { currency_code: "vnd", amount: 0,
+            rules: [{ attribute: "item_total", operator: "gte", value: 500000 }] },
+        ],
+      }],
+    })
+  }
 
   const { data: existingProducts } = await query.graph({
     entity: "product",

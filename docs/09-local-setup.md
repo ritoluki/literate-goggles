@@ -79,7 +79,7 @@ Mẫu trong `ops/`. Agent map chúng vào app thực, ghi cái nào custom/offic
 
 `.env` riêng frontend/backend; root script đọc đúng file, không tự load tất cả biến vào browser. Env thiếu key AI không fail commerce; thiếu JWT/COOKIE/session secret ở live phải fail startup.
 
-Local demo: sau `pnpm infra:up`, `pnpm db:migrate`, `pnpm db:seed:demo`, lệnh `pnpm dev` tự đọc publishable key demo từ PostgreSQL local và sinh `BFF_SERVICE_KEY`/`CSRF_SECRET` ngẫu nhiên chỉ trong process. Không in/ghi key vào Git. Khi chạy riêng/staging cần `BACKEND_URL`, `MEDUSA_PUBLISHABLE_KEY`, cùng `BFF_SERVICE_KEY` ở Next và Medusa, `CSRF_SECRET` ở Next, `SITE_ORIGIN` HTTPS chính xác; thiếu key thì BFF trả 503 an toàn. `pnpm test:integration` tự bật/tắt Medusa và Next khi chưa chạy, kiểm tra catalog/session/raw Store bypass. Nếu đã chạy Medusa riêng, cung cấp đúng `BFF_SERVICE_KEY` cho runner hoặc dừng process đó trước.
+Local demo: sau `pnpm infra:up`, `pnpm db:migrate`, `pnpm db:seed:demo`, lệnh `pnpm dev` tự đọc publishable key demo từ PostgreSQL local và sinh `BFF_SERVICE_KEY`/`CSRF_SECRET` ngẫu nhiên chỉ trong process. Không in/ghi key vào Git. Khi chạy riêng/staging cần `BACKEND_URL`, `MEDUSA_PUBLISHABLE_KEY`, cùng `BFF_SERVICE_KEY` ở Next và Medusa, `CSRF_SECRET` ở Next, `SITE_ORIGIN` HTTPS chính xác; thiếu key thì BFF trả 503 an toàn. `pnpm test:integration` tự bật/tắt Medusa và Next khi chưa chạy, kiểm tra catalog/session/cart/promotion/raw Store bypass, cùng shipping/COD bằng đơn synthetic được hủy sau test. Có thể chạy riêng `pnpm --filter @ban-gon/backend run verify:demo-shipping` sau seed. Nếu đã chạy Medusa riêng, cung cấp đúng `BFF_SERVICE_KEY` cho runner hoặc dừng process đó trước.
 
 ## 9.8 Developer experience
 

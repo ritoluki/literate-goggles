@@ -150,7 +150,19 @@ try {
     env: authEnv,
   })
   if (cart.error) throw cart.error
-  process.exitCode = cart.status ?? 1
+  if (cart.status !== 0) throw new Error('Cart checks failed')
+  const shippingCommand = process.platform === 'win32' ? 'cmd.exe' : 'pnpm'
+  const shippingArgs = process.platform === 'win32'
+    ? ['/d', '/c', 'pnpm.cmd', '--filter', '@ban-gon/backend', 'run', 'verify:demo-shipping']
+    : ['--filter', '@ban-gon/backend', 'run', 'verify:demo-shipping']
+  const shipping = spawnSync(shippingCommand, shippingArgs, {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+    env: authEnv,
+  })
+  if (shipping.error) throw shipping.error
+  if (shipping.status !== 0) throw new Error('Demo shipping/COD checks failed')
+  process.exitCode = 0
 } catch (error) {
   console.error(`FAIL integration runner: ${error.message}`)
   process.exitCode = 1

@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-26**. Pushed base commit: `c4d05ed`; T013 đang ở worktree.
+Lần xác minh: **2026-09-26**. T013 pushed commit: `75cb63c`; T014 đang ở worktree.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -30,6 +30,10 @@ Lần xác minh: **2026-09-26**. Pushed base commit: `c4d05ed`; T013 đang ở w
 | T013 rate limits | PASS | Redis 7.4.5 + Medusa middleware | `verify:session-rate-limit` và `pnpm test:integration` exit 0 | 20 write/session/min allow, lần21 trả 429 từ backend; session create 10/11 vẫn PASS |
 | T013 seed promotion idempotence | PASS | PostgreSQL local synthetic fixture | `pnpm db:seed:demo` lần hai exit 0; SQL count | 0 product mới, 24 cũ; đúng một BGDEMO10 active; không reset dữ liệu/stock |
 | T013 full checks | PASS | Node 22.13.0 + Medusa/Next local | `pnpm verify` exit 0; sau hook chạy lại `pnpm lint`, `pnpm typecheck`, `pnpm test:integration` đều exit 0 | doctor/unit9/9/offline60/health/Medusa+Next build PASS; race test chạy ở integration cuối |
+| T014 shipping seed repeat | PASS | Medusa 2.21.1 + PostgreSQL local | `pnpm db:seed:demo` hai lần exit 0 (2026-09-26); SQL count | Demo fulfillment set/zone/shipping option mỗi loại đúng 1; không sửa/xóa Europe starter |
+| T014 shipping engine | PASS | Medusa Pricing Module + cart workflows | `verify:demo-shipping` exit 0 | VN quote 30000 trên giỏ 199000; cart item_subtotal199000, shipping30000, tax0, total229000; item_total499999→30000, 500000→0; US address bị từ chối |
+| T014 COD uncaptured order | PASS | pp_system_default + Medusa complete/cancel workflows | `verify:demo-shipping` exit 0 | Synthetic order tạo từ cart/payment session, captured_amount=0, không có captured_at; workflow cancel sau assertion, event reservation-item.deleted; không có tiền/mail thật |
+| T014 full verify | PASS | Node 22.13.0 + PostgreSQL/Redis/Mailpit/Medusa/Next | `pnpm verify` exit 0 (2026-09-26); `pnpm lint` rerun exit 0/no warning | doctor, typecheck, unit9/9, offline60, integration cart+shipping+COD, Next/Medusa/admin build PASS |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |
