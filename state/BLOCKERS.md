@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker kỹ thuật đang mở cho local P2.
+Hiện không có blocker kỹ thuật đang mở cho local P3. T015 hoàn tất; tiếp tục T016.
 
 ## Blocker đã giải quyết
 
@@ -25,4 +25,4 @@ Hiện không có blocker kỹ thuật đang mở cho local P2.
 ## Gaps không phải blocker
 
 - E2E browser, security, load, backup/restore và live Jev vẫn NOT_RUN theo phase tương ứng.
-- Git `origin/main` đã nhận commit `75cb63c` (T013); remote CI run chưa xác minh trong phiên này.
+- Git `origin/main` đã nhận commit `40234a6` (T014); remote CI run chưa xác minh trong phiên này.

@@ -13,7 +13,7 @@ Ngày nguồn tài liệu được kiểm tra: 2026-09-21. Exact versions cài t
 | Redis | 7.4 candidate + security/license review | 7.4.5 container | official support/Medusa modules | HEALTHY + MEDUSA_MODULES_CONNECTED |
 | TypeScript | strict workspace compiler | 5.9.3 | npm registry; local `npm list` | INSTALLED + TYPECHECK_PASS |
 | ESLint/@eslint/js | flat-config lint | 9.39.5 | npm registry; local `npm list` | INSTALLED + LINT_PASS |
-| Vitest/Playwright/Zod | compatible stable | NOT_INSTALLED | primary docs | NOT_RUN |
+| Vitest/Playwright/Zod | compatible stable | Playwright Core 1.63.0; Vitest/Zod NOT_INSTALLED | `playwright-core` exact pin + Chromium system install | layout browser test PASS; Vitest/Zod NOT_RUN |
 | Docker/base image | Node Debian slim + digest | Docker Engine 29.8.0; Compose 5.5.1 | local runtime | VERIFIED_LOCAL |
 | Jev alias | jev-1.13-free | remote alias; not pinned weights | S01 | LIVE_NOT_RUN |
 
