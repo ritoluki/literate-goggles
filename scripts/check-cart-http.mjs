@@ -244,15 +244,23 @@ const staleComplete = await fetch(origin + '/api/v1/checkout/complete', {
 assert.equal(staleComplete.status, 409, 'old review must not complete after cart mutation')
 assert.equal((await staleComplete.json()).error.code, 'CART_CHANGED')
 const placeOrderKey = randomUUID()
-const placeOrder = await fetch(origin + '/api/v1/checkout/complete', {
+const secondTabKey = randomUUID()
+const completeFromTab = (key) => fetch(origin + '/api/v1/checkout/complete', {
   method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
-    'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': placeOrderKey },
+    'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': key },
   body: JSON.stringify({ reviewToken: changedReview.reviewToken }), signal: AbortSignal.timeout(45_000),
 })
-assert.equal(placeOrder.status, 201, 'explicit current COD review should complete through Medusa')
-const placed = (await placeOrder.json()).data
+const distinctKeyRace = await Promise.all([completeFromTab(placeOrderKey), completeFromTab(secondTabKey)])
+assert(distinctKeyRace.every((response) => [200, 201].includes(response.status)),
+  'parallel tabs with different idempotency keys must converge without a duplicate order')
+const distinctKeyResults = await Promise.all(distinctKeyRace.map(async (response) => (await response.json()).data))
+const placeOrder = distinctKeyRace.find((response) => response.status === 201)
+assert(placeOrder, 'one distinct-key request must perform the explicit COD completion')
+const placed = distinctKeyResults.find((result) => result.status === 'succeeded')
 assert.equal(placed.status, 'succeeded')
 assert(placed.orderReference)
+assert(distinctKeyResults.every((result) => result.orderReference === placed.orderReference),
+  'parallel distinct-key tabs must converge on the same Medusa order')
 const replayRequests = await Promise.all(Array.from({ length: 10 }, () => fetch(origin + '/api/v1/checkout/complete', {
   method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
     'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': placeOrderKey },
@@ -271,5 +279,5 @@ const payloadMismatch = await fetch(origin + '/api/v1/checkout/complete', {
 assert.equal(payloadMismatch.status, 409, 'same idempotency key with a different review payload must conflict')
 assert.equal((await payloadMismatch.json()).error.code, 'IDEMPOTENCY_CONFLICT')
 console.log('PASS checkout review HTTP: guest address, Medusa shipping quote/selection and COD payment session; signed five-minute token binds VND total without PII')
-console.log('PASS checkout completion HTTP: stale review rejected; Medusa COD order created once; ten parallel replays return same order; key/payload mismatch rejected')
+console.log('PASS checkout completion HTTP: stale review rejected; parallel distinct-key tabs converge on one Medusa COD order; ten parallel same-key replays return same order; key/payload mismatch rejected')
 console.log('PASS cart HTTP: Medusa VND add/update/remove and 10% promotion; refresh, locked quantity race, CSRF/Origin, isolated sessions, backend 429 quota')
