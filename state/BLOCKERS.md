@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker kỹ thuật đang mở. T015–T020 hoàn tất; T017–T019 pushed, T020 verified local; đang triển khai T021.
+Hiện không có blocker kỹ thuật đang mở. T015–T021 hoàn tất; T017–T020 đã push; đang triển khai T022. Runtime ngoài local phải cấu hình `REVIEW_TOKEN_SECRET` riêng (fail-closed nếu thiếu); điều này không chặn local demo/test.
 
 ## Blocker đã giải quyết
 

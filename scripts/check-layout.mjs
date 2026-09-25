@@ -227,6 +227,9 @@ try {
         await page.getByRole('status').filter({ hasText: 'Phương thức vận chuyển đã được xác nhận' }).waitFor()
         assert.equal(await shippingRadio.isChecked(), true)
         assert((await page.locator('.checkout-summary').innerText()).includes('30.000'))
+        await page.getByRole('button', { name: 'Xem lại đơn COD' }).click()
+        await page.getByRole('status').filter({ hasText: 'Đã chốt bản xem lại COD trong 5 phút.' }).waitFor()
+        assert((await page.locator('.checkout-summary').innerText()).includes('Thanh toán khi nhận hàng (COD)'))
       }
     }
     if (width === 1280) {
@@ -247,7 +250,7 @@ try {
     }
     await context.close()
   }
-  console.log('PASS T015–T020: responsive catalog/PDP/cart; guest address, unsupported country and Medusa shipping quote/selection; policy and noindex/robots/sitemap')
+  console.log('PASS T015–T021: responsive catalog/PDP/cart; guest address, Medusa shipping quote/selection and COD review; policy and noindex/robots/sitemap')
 } finally {
   await browser.close()
 }

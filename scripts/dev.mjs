@@ -25,11 +25,16 @@ const serviceKey = process.env.BFF_SERVICE_KEY ??
   (process.env.APP_MODE === 'demo' || !process.env.APP_MODE ? randomBytes(32).toString('hex') : undefined)
 const csrfSecret = process.env.CSRF_SECRET ??
   (process.env.APP_MODE === 'demo' || !process.env.APP_MODE ? randomBytes(32).toString('hex') : undefined)
+const reviewTokenSecret = process.env.REVIEW_TOKEN_SECRET ??
+  (process.env.APP_MODE === 'demo' || !process.env.APP_MODE ? randomBytes(32).toString('hex') : undefined)
 if (!serviceKey || serviceKey.length < 32) {
   throw new Error('BFF_SERVICE_KEY must contain at least 32 characters')
 }
 if (!csrfSecret || csrfSecret.length < 32) {
   throw new Error('CSRF_SECRET must contain at least 32 characters')
+}
+if (!reviewTokenSecret || reviewTokenSecret.length < 32) {
+  throw new Error('REVIEW_TOKEN_SECRET must contain at least 32 characters')
 }
 const result = spawnSync('pnpm', args, {
   cwd: process.cwd(),
@@ -38,6 +43,7 @@ const result = spawnSync('pnpm', args, {
     MEDUSA_PUBLISHABLE_KEY: publishableKey,
     BFF_SERVICE_KEY: serviceKey,
     CSRF_SECRET: csrfSecret,
+    REVIEW_TOKEN_SECRET: reviewTokenSecret,
     BACKEND_URL: process.env.BACKEND_URL ?? 'http://127.0.0.1:9000',
   },
   stdio: 'inherit',

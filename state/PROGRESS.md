@@ -4,8 +4,8 @@ Trạng thái hiện tại: **P3_COMPLETE / P4_IN_PROGRESS**.
 
 - Phase đã hoàn thành: P0, P1, P2.
 - Phase đã hoàn thành: P3; T008–T019 đã xong.
-- Phase đang triển khai: P4; T020 hoàn thành, task đang làm T021.
-- Last pushed implementation SHA: `0ad2c40` (`origin/main`); T017–T019 PDP/cart/policy/SEO đã commit và push.
+- Phase đang triển khai: P4; T020–T021 hoàn thành, task đang làm T022.
+- Last pushed implementation SHA: `3512203` (`origin/main`); T020 guest address/shipping checkout đã commit và push.
 - Runtime local: Node 22.13.0, pnpm 12.6.0, Docker Engine 29.8.0, Compose 5.5.1.
 - Local services: PostgreSQL 17.6, Redis 7.4.5, Mailpit 1.26.0 đang healthy.
 - Medusa: 2.21.1, migration và seed fixture đã chạy; backend/admin build PASS.
@@ -35,6 +35,7 @@ Trạng thái hiện tại: **P3_COMPLETE / P4_IN_PROGRESS**.
 | 2026-09-26 | P3 T018 hoàn tất | Trang giỏ snapshot Medusa no-store; badge; cập nhật qty/xóa/coupon qua CSRF; sequence guard chặn GET cũ ghi đè và UI khóa mutation đồng thời | `apps/storefront/app/gio-hang/`, `apps/storefront/app/components/cart-view.tsx`, `apps/storefront/app/components/site-header.tsx`, `scripts/check-layout.mjs` | Browser verify: add, refresh giữ cart và qty, đổi qty, áp dụng/gỡ BGDEMO10, xóa fixture; `pnpm verify` PASS | T019 policy drafts, demo labels, noindex/sitemap |
 | 2026-09-26 | P3 T019 hoàn tất | Trang policy dự thảo có demo facts + checklist phê duyệt; footer link; noindex/no-follow mặc định; robots disallow; sitemap rỗng trừ live + opt-in + SITE_URL HTTPS | `apps/storefront/app/chinh-sach/`, `apps/storefront/app/robots.ts`, `apps/storefront/app/sitemap.ts`, `scripts/check-layout.mjs` | Browser assertions policy/noindex/robots/sitemap PASS; lint/typecheck/build PASS; chưa có nội dung pháp lý thật và không bật indexing | T020 guest address/shipping checkout |
 | 2026-09-26 | P4 T020 hoàn tất | Guest checkout form; strict email/address DTO validation phía Next+Medusa; session-owned address restore; country unsupported reject; shipping quote/option verification/selection qua Medusa workflows; summary dùng engine totals | `apps/backend/src/checkout/checkout.ts`, `apps/backend/src/api/store/bff/checkout/`, `apps/storefront/app/api/v1/checkout/`, `apps/storefront/app/components/checkout-view.tsx`, `scripts/check-layout.mjs` | Browser real-stack PASS: thiếu địa chỉ→409, US→400, VN fixture→quote/chọn 30k, email/địa chỉ restore sau reload; full `pnpm verify` PASS. AT-20 chuyển T022 do assertion yêu cầu complete behavior; giữ nguyên acceptance, không bỏ | T021 review fingerprint/signing/expiry |
+| 2026-09-26 | P4 T021 hoàn tất | HMAC-SHA256 review token 5 phút với key riêng, claim session/cart/fingerprint/total/VND/shipping/COD/payment-session/version; Medusa COD payment collection/session; checkout review BFF + UI; token chỉ giữ trong memory; local dev sinh key ngẫu nhiên ephemeral, production cần env | `apps/backend/src/checkout/review-token.ts`, `apps/backend/src/api/store/bff/checkout/review/`, `apps/storefront/app/api/v1/checkout/review/`, unit+HTTP+browser integration | Unit tamper/expiry/session/total binding & no PII PASS; HTTP Medusa real COD review 229k; đổi qty tạo token mới và total428k; browser responsive review PASS; lint/typecheck/build PASS. AT-13 complete revalidation và AT-53 HTTP409 vẫn cần complete API T022; chưa waived | T022 atomic/idempotent cart completion + recovery |
 
 ## Ghi chú tiếp tục
 
@@ -45,4 +46,4 @@ Trạng thái hiện tại: **P3_COMPLETE / P4_IN_PROGRESS**.
 - Không reset trạng thái khi đổi chat; đọc state và kiểm tra filesystem trước khi tiếp tục.
 - Catalog T011 không có snapshot ứng dụng nên không cần event invalidation riêng; đọc mới mỗi request, xem ADR-0002. Home UI vẫn có mảng demo hard-code, phải thay ở T016. Freshness khi sửa giá/tồn chưa test; đưa vào T013/P6, không coi cart/checkout đã sẵn sàng.
 - T015 screenshots được làm mới khi thay home bằng catalog thật ở T016. Browser harness yêu cầu root `pnpm dev` và `http://localhost:3000` để hydrate và truy cập Medusa BFF cùng origin.
-- Browser test tạo/dọn giỏ PDP/cart fixture; T020 tạo session/cart địa chỉ synthetic `@invalid.example` trên local DB. Không chứa PII thật; không xóa database volumes.
+- Browser/integration test tạo cart fixture và địa chỉ/email synthetic `@invalid.example` trên local DB. Không chứa PII thật; không xóa database volumes. T021 review token key chỉ ephemeral trong dev/test; môi trường khác cần secret riêng ≥32 ký tự.

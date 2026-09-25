@@ -7,7 +7,9 @@ const catalogBffUrl = 'http://127.0.0.1:3000/api/v1/catalog?limit=1'
 const deadlineMs = 150_000
 const serviceKey = process.env.BFF_SERVICE_KEY ?? randomBytes(32).toString('hex')
 const csrfSecret = process.env.CSRF_SECRET ?? randomBytes(32).toString('hex')
-const authEnv = { ...process.env, BFF_SERVICE_KEY: serviceKey, CSRF_SECRET: csrfSecret }
+const reviewTokenSecret = process.env.REVIEW_TOKEN_SECRET ?? randomBytes(32).toString('hex')
+const authEnv = { ...process.env, BFF_SERVICE_KEY: serviceKey, CSRF_SECRET: csrfSecret,
+  REVIEW_TOKEN_SECRET: reviewTokenSecret }
 
 async function isHealthy() {
   try {

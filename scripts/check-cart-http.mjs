@@ -177,4 +177,63 @@ const limited = await fetch('http://127.0.0.1:9000/store/bff/cart/promotion', {
   method: 'DELETE', headers: directHeaders, signal: AbortSignal.timeout(20_000),
 })
 assert.equal(limited.status, 429, '21st backend cart write must be limited')
+
+const reviewSession = await newSession()
+assert.equal((await add(reviewSession, { variantId: variantIdValue, quantity: 1 })).status, 200)
+const checkoutAddress = await fetch(origin + '/api/v1/checkout/address', {
+  method: 'PUT', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf },
+  body: JSON.stringify({ email: 'review-fixture@invalid.example', address: {
+    firstName: 'Demo', lastName: 'Review', phone: '+84900000000', countryCode: 'vn',
+    province: 'TP Hồ Chí Minh', city: 'TP Hồ Chí Minh', address1: '123 Đường Kiểm thử',
+  } }), signal: AbortSignal.timeout(30_000),
+})
+assert.equal(checkoutAddress.status, 200, 'synthetic address should be accepted for review integration')
+const shippingOptions = await fetch(origin + '/api/v1/checkout/shipping-options', {
+  headers: { cookie: reviewSession.cookie }, signal: AbortSignal.timeout(30_000),
+})
+assert.equal(shippingOptions.status, 200)
+const option = (await shippingOptions.json()).data.shippingOptions[0]
+assert(option?.id)
+const shippingSelection = await fetch(origin + '/api/v1/checkout/shipping', {
+  method: 'PUT', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf }, body: JSON.stringify({ optionId: option.id }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(shippingSelection.status, 200)
+const reviewResponse = await fetch(origin + '/api/v1/checkout/review', {
+  method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf }, body: JSON.stringify({ method: 'cod' }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(reviewResponse.status, 200, 'server should create a Medusa COD session and signed review')
+const review = (await reviewResponse.json()).data
+assert.equal(review.paymentMethod, 'cod')
+assert.equal(review.cart.totalVnd, 229000)
+assert(!review.reviewToken.includes('review-fixture@invalid.example'), 'signed review token must contain no PII')
+const tokenClaims = JSON.parse(Buffer.from(review.reviewToken.split('.')[0], 'base64url').toString())
+assert.equal(tokenClaims.currency, 'vnd')
+assert.equal(tokenClaims.total, 229000)
+assert.equal(tokenClaims.payment, 'cod')
+assert(!('email' in tokenClaims) && !('address' in tokenClaims))
+assert.notEqual(tokenClaims.sid, reviewSession.cookie.slice('bg_session='.length))
+assert.notEqual(tokenClaims.cid, reviewSession.cookie.slice('bg_session='.length))
+assert(tokenClaims.exp - tokenClaims.iat <= 5 * 60 * 1000)
+const reviewLineId = review.cart.items[0].lineId
+const changedLine = await fetch(itemUrl + '/' + reviewLineId, {
+  method: 'PATCH', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf }, body: JSON.stringify({ quantity: 2 }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(changedLine.status, 200, 'cart mutation should be applied by authoritative Medusa workflow')
+const changedReviewResponse = await fetch(origin + '/api/v1/checkout/review', {
+  method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': reviewSession.csrf }, body: JSON.stringify({ method: 'cod' }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(changedReviewResponse.status, 200)
+const changedReview = (await changedReviewResponse.json()).data
+assert.notEqual(changedReview.reviewToken, review.reviewToken, 'changed cart must get a distinct signed review')
+assert.equal(changedReview.cart.totalVnd, 428000, 'updated total must come from Medusa after cart mutation')
+console.log('PASS checkout review HTTP: guest address, Medusa shipping quote/selection and COD payment session; signed five-minute token binds VND total without PII')
 console.log('PASS cart HTTP: Medusa VND add/update/remove and 10% promotion; refresh, locked quantity race, CSRF/Origin, isolated sessions, backend 429 quota')

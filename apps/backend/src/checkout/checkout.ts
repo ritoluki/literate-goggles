@@ -1,7 +1,10 @@
 import type { MedusaStoreRequest } from '@medusajs/framework/http'
-import { BigNumber } from '@medusajs/framework/utils'
+import type { RemoteQueryFunction } from '@medusajs/framework/types'
+import { BigNumber, MedusaError, Modules } from '@medusajs/framework/utils'
 import {
   addShippingMethodToCartWorkflow,
+  createPaymentCollectionForCartWorkflowId,
+  createPaymentSessionsWorkflow,
   listShippingOptionsForCartWithPricingWorkflow,
   updateCartWorkflow,
 } from '@medusajs/medusa/core-flows'
@@ -122,6 +125,39 @@ export async function selectCartShipping(req: MedusaStoreRequest, cartId: string
   await addShippingMethodToCartWorkflow(req.scope).run({
     input: { cart_id: cartId, options: [{ id: optionId }] },
   })
+}
+
+export async function ensureCodPaymentSession(
+  req: MedusaStoreRequest, cartId: string, query: Omit<RemoteQueryFunction, symbol>,
+) {
+  const getCart = () => query.graph({ entity: 'cart', filters: { id: cartId }, fields: ['id',
+    'payment_collection.id', 'payment_collection.payment_sessions.id',
+    'payment_collection.payment_sessions.provider_id', 'payment_collection.payment_sessions.status'] })
+  let { data } = await getCart()
+  let cart = data[0]
+  if (!cart) throw new MedusaError(MedusaError.Types.NOT_FOUND, 'CART_UNAVAILABLE')
+  let collection = cart.payment_collection
+  if (!collection?.id) {
+    const workflowEngine = req.scope.resolve<any>(Modules.WORKFLOW_ENGINE)
+    await workflowEngine.run(createPaymentCollectionForCartWorkflowId, { input: { cart_id: cartId } })
+    ;({ data } = await getCart())
+    cart = data[0]
+    collection = cart?.payment_collection
+  }
+  if (!collection?.id) throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, 'PAYMENT_COLLECTION_UNAVAILABLE')
+  let session = (collection.payment_sessions ?? []).find((candidate: any) =>
+    candidate.provider_id === 'pp_system_default' && candidate.status !== 'canceled')
+  if (!session) {
+    await createPaymentSessionsWorkflow(req.scope).run({ input: {
+      payment_collection_id: collection.id, provider_id: 'pp_system_default',
+    } })
+    ;({ data } = await getCart())
+    cart = data[0]
+    session = (cart?.payment_collection?.payment_sessions ?? []).find((candidate: any) =>
+      candidate.provider_id === 'pp_system_default' && candidate.status !== 'canceled')
+  }
+  if (!session?.id) throw new MedusaError(MedusaError.Types.UNEXPECTED_STATE, 'COD_PAYMENT_SESSION_UNAVAILABLE')
+  return session.id as string
 }
 
 export { cartSnapshot }

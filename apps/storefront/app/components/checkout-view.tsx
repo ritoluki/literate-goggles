@@ -16,6 +16,7 @@ type AddressForm = {
   firstName: string; lastName: string; phone: string; email: string; countryCode: 'vn'
   province: string; city: string; district: string; ward: string; address1: string; address2: string; postalCode: string
 }
+type Review = { reviewToken: string; expiresAt: string; cart: CartSnapshot }
 const initialAddress: AddressForm = {
   firstName: '', lastName: '', phone: '', email: '', countryCode: 'vn', province: '', city: '',
   district: '', ward: '', address1: '', address2: '', postalCode: '',
@@ -32,6 +33,7 @@ export function CheckoutView() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [review, setReview] = useState<Review | null>(null)
 
   useEffect(() => {
     let active = true
@@ -72,7 +74,7 @@ export function CheckoutView() {
 
   async function saveAddress(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setBusy(true); setError(''); setNotice(''); setSelected('')
+    setBusy(true); setError(''); setNotice(''); setSelected(''); setReview(null)
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/address', {
@@ -99,7 +101,7 @@ export function CheckoutView() {
   }
 
   async function chooseShipping(optionId: string) {
-    setBusy(true); setError(''); setSelected('')
+    setBusy(true); setError(''); setSelected(''); setReview(null)
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/shipping', {
@@ -113,6 +115,24 @@ export function CheckoutView() {
       setNotice('Phương thức vận chuyển đã được xác nhận lại từ hệ thống.')
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Không thể chọn phương thức vận chuyển.')
+    } finally { setBusy(false) }
+  }
+
+  async function createReview() {
+    setBusy(true); setError(''); setNotice(''); setReview(null)
+    try {
+      const csrf = await csrfToken()
+      const response = await fetch('/api/v1/checkout/review', {
+        method: 'POST', headers: { 'content-type': 'application/json', 'x-bg-csrf-token': csrf },
+        body: JSON.stringify({ method: 'cod' }), cache: 'no-store',
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error('Giỏ hàng hoặc phí vận chuyển đã thay đổi. Hãy kiểm tra lại trước khi tiếp tục.')
+      setReview(payload.data as Review)
+      setCart(payload.data.cart as CartSnapshot)
+      setNotice('Đã chốt bản xem lại COD trong 5 phút. Bạn cần xác nhận lại nếu thông tin giỏ thay đổi.')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Không thể xác minh bản xem lại đơn hàng.')
     } finally { setBusy(false) }
   }
 
@@ -144,7 +164,9 @@ export function CheckoutView() {
         <p><span>Tạm tính</span><strong>{money(cart.subtotalVnd)}</strong></p>{cart.discountVnd > 0 ? <p><span>Ưu đãi</span><strong>−{money(cart.discountVnd)}</strong></p> : null}
         <p><span>Vận chuyển</span><strong>{cart.shippingVnd === null ? 'Chưa xác định' : money(cart.shippingVnd)}</strong></p><p><span>Thuế</span><strong>{money(cart.taxVnd)}</strong></p><p className="cart-total"><span>Tổng hiện tại</span><strong>{money(cart.totalVnd)}</strong></p>
         {options.length ? <fieldset className="shipping-options"><legend>Chọn phương thức vận chuyển</legend>{options.map((option) => <label key={option.id}><input type="radio" name="shipping-option" value={option.id} checked={selected === option.id} disabled={busy} onChange={() => void chooseShipping(option.id)} /><span>{option.name}</span><strong>{money(option.amountVnd)}</strong></label>)}</fieldset> : null}
-        <p className="checkout-next-note">Sau khi chọn vận chuyển, bước xem lại COD và xác nhận đơn sẽ được triển khai riêng. Chưa có đơn nào được tạo.</p>
+        {selected ? <button className="button checkout-continue" type="button" disabled={busy} onClick={() => void createReview()}>{busy ? 'Đang xác minh…' : 'Xem lại đơn COD'}</button> : null}
+        {review ? <div className="checkout-state" role="status"><h3>Đơn đã được tính lại</h3><p>Thanh toán khi nhận hàng (COD)</p><p>Tổng xác nhận: <strong>{money(review.cart.totalVnd)}</strong></p><p>Mã xác minh có hiệu lực đến {new Date(review.expiresAt).toLocaleTimeString('vi-VN')}.</p><p>Chưa tạo đơn; bước xác nhận đặt hàng sẽ xuất hiện tiếp theo.</p></div> : null}
+        <p className="checkout-next-note">Phí và tổng do Medusa tính. Xem lại chưa tạo đơn hoặc gửi email.</p>
       </aside>
     </div>
     {notice ? <p className="cart-feedback cart-feedback--success" role="status">{notice}</p> : null}
