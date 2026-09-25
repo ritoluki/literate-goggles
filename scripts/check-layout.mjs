@@ -181,6 +181,53 @@ try {
       const soldOutButton = page.getByRole('button', { name: 'Tạm hết hàng' })
       assert(await soldOutButton.isDisabled(), 'Unavailable variant must not be addable')
       await page.unroute(`**/api/v1/products/${handle}`)
+      if (width === 390) {
+        await page.goto(`http://localhost:3000/san-pham/${handle}`, { waitUntil: 'networkidle' })
+        await page.locator(`input[name="product-variant"][value="${firstVariant.id}"]`).check()
+        await page.getByRole('button', { name: 'Thêm vào giỏ' }).click()
+        await page.getByText('Đã thêm sản phẩm vào giỏ hàng.').waitFor()
+        await page.goto('http://localhost:3000/gio-hang', { waitUntil: 'networkidle' })
+        await page.getByRole('link', { name: 'Tiếp tục tới thông tin giao hàng' }).click()
+        await page.getByRole('heading', { name: 'Thông tin giao hàng' }).waitFor()
+        const optionsBeforeAddress = await page.evaluate(async () =>
+          (await fetch('/api/v1/checkout/shipping-options')).status)
+        assert.equal(optionsBeforeAddress, 409, 'Shipping options must not be quoted before address is provided')
+        const csrf = await page.evaluate(async () => (await (await fetch('/api/v1/session')).json()).data.csrfToken)
+        const unsupported = await page.evaluate(async (csrfToken) => {
+          const response = await fetch('/api/v1/checkout/address', {
+          method: 'PUT', headers: { 'content-type': 'application/json', 'x-bg-csrf-token': csrfToken },
+          body: JSON.stringify({ email: 'fixture@invalid.example', address: {
+            firstName: 'Demo', lastName: 'Test', phone: '+84900000000', countryCode: 'us',
+            province: 'Synthetic', city: 'Synthetic', address1: '1 Test Street',
+          } }),
+          })
+          return response.status
+        }, csrf)
+        assert.equal(unsupported, 400, 'Unsupported country must be rejected by checkout API')
+        await page.getByLabel('Email').fill('checkout-fixture@invalid.example')
+        await page.getByLabel('Tên', { exact: true }).fill('Demo')
+        await page.getByLabel('Họ', { exact: true }).fill('Tester')
+        await page.getByLabel('Số điện thoại').fill('+84900000000')
+        await page.getByLabel('Tỉnh / thành phố').fill('TP Hồ Chí Minh')
+        await page.getByLabel('Thành phố / địa phương').fill('TP Hồ Chí Minh')
+        await page.getByLabel('Quận / huyện (nếu có)').fill('Quận 1')
+        await page.getByLabel('Phường / xã (nếu có)').fill('Phường Bến Nghé')
+        await page.getByLabel('Địa chỉ đường, số nhà').fill('123 Đường Kiểm thử')
+        await page.getByRole('button', { name: 'Lưu địa chỉ và xem phí giao hàng' }).click()
+        await page.getByRole('status').filter({ hasText: 'Địa chỉ đã lưu. Phí vận chuyển' }).waitFor()
+        await page.reload({ waitUntil: 'networkidle' })
+        await page.getByLabel('Email').waitFor()
+        assert.equal(await page.getByLabel('Email').inputValue(), 'checkout-fixture@invalid.example',
+          'Session-owned guest email should be restored after reload')
+        assert.equal(await page.getByLabel('Địa chỉ đường, số nhà').inputValue(), '123 Đường Kiểm thử',
+          'Session-owned delivery address should be restored after reload')
+        const shippingRadio = page.getByRole('radio', { name: /Bàn Gọn Demo Standard Shipping/ })
+        await shippingRadio.waitFor()
+        await shippingRadio.click()
+        await page.getByRole('status').filter({ hasText: 'Phương thức vận chuyển đã được xác nhận' }).waitFor()
+        assert.equal(await shippingRadio.isChecked(), true)
+        assert((await page.locator('.checkout-summary').innerText()).includes('30.000'))
+      }
     }
     if (width === 1280) {
       const summary = page.locator('.nav-disclosure summary')
@@ -200,7 +247,7 @@ try {
     }
     await context.close()
   }
-  console.log('PASS T015–T019: five responsive viewports; catalog/PDP/cart; cart persistence, coupon and badge; draft policy and noindex/robots/sitemap')
+  console.log('PASS T015–T020: responsive catalog/PDP/cart; guest address, unsupported country and Medusa shipping quote/selection; policy and noindex/robots/sitemap')
 } finally {
   await browser.close()
 }

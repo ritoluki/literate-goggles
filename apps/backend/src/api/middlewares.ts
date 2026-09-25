@@ -16,7 +16,7 @@ export default defineMiddlewares({
       middlewares: [requireCommerceSession],
     },
     {
-      matcher: /^\/store\/bff\/cart(?:\/.*)?$/i,
+      matcher: /^\/store\/bff\/(?:cart|checkout)(?:\/.*)?$/i,
       method: ['POST', 'PUT', 'PATCH', 'DELETE'],
       middlewares: [limitCartWrites],
     },

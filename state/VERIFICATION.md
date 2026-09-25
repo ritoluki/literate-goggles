@@ -1,6 +1,6 @@
 # Sổ bằng chứng ứng dụng
 
-Lần xác minh: **2026-09-26**. T017–T019 pushed in commit `0ad2c40`; T020 in progress.
+Lần xác minh: **2026-09-26**. T017–T019 pushed (`0ad2c40`); T020 verified locally; T021 in progress.
 
 | Nhóm | Trạng thái | Runtime/env | Lệnh và kết quả | Assertions / gaps |
 |---|---|---|---|---|
@@ -47,6 +47,9 @@ Lần xác minh: **2026-09-26**. T017–T019 pushed in commit `0ad2c40`; T020 in
 | T018 full verification | PASS | Node 22.13.0, pnpm 12.6.0, local Docker services | `pnpm verify` exit 0 (2026-09-26) | Doctor, lint, typecheck, unit10/10, offline60, catalog/detail/session/cart CSRF/ownership/race/shipping/COD integration, Next and Medusa/admin build PASS |
 | T019 policy + indexing browser | PASS | Playwright Core + local Chrome; Next 16.3.5 demo mode | `pnpm test:layout` exit 0 | Policy clearly draft/demo; meta robots noindex; `/robots.txt` disallows all; `/sitemap.xml` contains no indexable URL; full catalog/PDP/cart regression also PASS |
 | T019 lint/typecheck/build | PASS | Node 22.13.0 + pnpm 12.6.0 | `pnpm lint`, `pnpm typecheck`, `pnpm build` exit 0 | Next routes include policy/cart/robots/sitemap; Medusa backend/admin build PASS |
+| T020 guest address + shipping browser | PASS | Playwright Core + Next 16.3.5 + Medusa 2.21.1 + PostgreSQL/Redis | `pnpm test:layout` exit 0 (2026-09-26) | No-address quote returns409; unsupported country rejected400; synthetic VN address accepted/restored after reload; engine quotes30,000 VND; option revalidated/selected; totals from Medusa; no real PII/order. |
+| T020 full verification | PASS | Node 22.13.0/pnpm 12.6.0; Docker local; isolated XDG config | `pnpm verify` exit 0 (2026-09-26) | doctor, lint, typecheck, unit10/10, offline60, DB/Redis/Medusa catalog/session/cart/race/shipping/COD integration, storefront/Medusa/admin build PASS. |
+| AT-20 missing shipping/review on complete | NOT_RUN — assigned T022 | — | — | Complete workflow/API is T022; the test remains required there and has not been waived. |
 | HTTP health | PASS | Next/Medusa host local | `pnpm dev`; GET `:3000/` = 200 (14,368 bytes); GET `:9000/health` = 200 `OK` | Root dev chạy đồng thời cả hai app và được dừng sau smoke |
 | Integration smoke | PASS | DB/Redis/Mailpit/Medusa thật | `pnpm test:integration` exit 0 (2026-09-25) | PostgreSQL TCP, Redis PONG, Mailpit HTTP 200, Medusa HTTP 200; DB constraint check PASS; runner tự start/stop backend |
 | Lint | PASS | ESLint + Medusa plugin 2.21.1 | `pnpm lint` exit 0 | Không còn lint issue/warning |

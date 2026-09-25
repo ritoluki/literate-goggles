@@ -121,6 +121,7 @@ export function CartView() {
         <form className="cart-promo" onSubmit={(event) => { event.preventDefault(); void mutate('/api/v1/cart/promotion', 'PUT', { code }) }}><label htmlFor="promotion-code">Mã ưu đãi</label><div><input id="promotion-code" value={code} onChange={(event) => setCode(event.target.value)} maxLength={32} /><button type="submit" disabled={pending || !code.trim()}>Áp dụng</button></div></form>
         {cart!.promotionCodes.map((promotion) => <p key={promotion}>Đang áp dụng: <strong>{promotion}</strong><button className="cart-remove" disabled={pending} onClick={() => void mutate('/api/v1/cart/promotion', 'DELETE')}>Gỡ mã</button></p>)}
         <p className="cart-checkout-note">Phí giao hàng và điều kiện đơn hàng sẽ được xác nhận ở bước tiếp theo.</p>
+        <Link className="button checkout-continue" href="/thanh-toan">Tiếp tục tới thông tin giao hàng</Link>
       </aside>
     </div>}
     {notice ? <p role="status" className="cart-feedback cart-feedback--success">{notice}</p> : null}

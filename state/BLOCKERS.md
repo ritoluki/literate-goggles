@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker kỹ thuật đang mở. T015–T019 hoàn tất; đang triển khai T020 local.
+Hiện không có blocker kỹ thuật đang mở. T015–T020 hoàn tất; T017–T019 pushed, T020 verified local; đang triển khai T021.
 
 ## Blocker đã giải quyết
 
