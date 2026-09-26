@@ -61,6 +61,44 @@ export function CheckoutView() {
     return () => { active = false }
   }, [])
 
+  useEffect(() => {
+    if (completion?.status === 'succeeded') return
+    const storedIntent = sessionStorage.getItem('bg-checkout-intent')
+    if (!storedIntent) return
+    intentKey.current = storedIntent
+    setCompletion((current) => current?.status === 'pending' ? current : { status: 'pending' })
+    setBusy(true)
+    let active = true
+    const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms))
+    void (async () => {
+      while (active) {
+        try {
+          const response = await fetch(`/api/v1/checkout/complete/${storedIntent}`, {
+            cache: 'no-store', signal: AbortSignal.timeout(5000),
+          })
+          if (response.ok) {
+            const payload = await response.json()
+            if (payload.data?.status === 'succeeded') {
+              if (active) setCompletion({ status: 'succeeded', orderReference: payload.data.orderReference })
+              sessionStorage.removeItem('bg-checkout-intent')
+              intentKey.current = null
+              if (active) setBusy(false)
+              return
+            }
+            if (payload.data?.status === 'failed') {
+              sessionStorage.removeItem('bg-checkout-intent')
+              intentKey.current = null
+              if (active) { setCompletion(null); setError('Yêu cầu hoàn tất đã thất bại; hãy kiểm tra lại giỏ hàng trước khi thử lại.'); setBusy(false) }
+              return
+            }
+          }
+        } catch { /* Keep polling the same owner-bound intent; never create a replacement order. */ }
+        await wait(2000)
+      }
+    })()
+    return () => { active = false }
+  }, [completion?.status])
+
   async function csrfToken() {
     const response = await fetch('/api/v1/session', { cache: 'no-store' })
     if (response.status === 404) {
@@ -76,7 +114,7 @@ export function CheckoutView() {
 
   async function saveAddress(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setBusy(true); setError(''); setNotice(''); setSelected(''); setReview(null); setCompletion(null); intentKey.current = null
+    setBusy(true); setError(''); setNotice(''); setSelected(''); setReview(null); setCompletion(null); intentKey.current = null; sessionStorage.removeItem('bg-checkout-intent')
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/address', {
@@ -103,7 +141,7 @@ export function CheckoutView() {
   }
 
   async function chooseShipping(optionId: string) {
-    setBusy(true); setError(''); setSelected(''); setReview(null); setCompletion(null); intentKey.current = null
+    setBusy(true); setError(''); setSelected(''); setReview(null); setCompletion(null); intentKey.current = null; sessionStorage.removeItem('bg-checkout-intent')
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/shipping', {
@@ -121,7 +159,7 @@ export function CheckoutView() {
   }
 
   async function createReview() {
-    setBusy(true); setError(''); setNotice(''); setReview(null); setCompletion(null); intentKey.current = null
+    setBusy(true); setError(''); setNotice(''); setReview(null); setCompletion(null); intentKey.current = null; sessionStorage.removeItem('bg-checkout-intent')
     try {
       const csrf = await csrfToken()
       const response = await fetch('/api/v1/checkout/review', {
@@ -143,16 +181,18 @@ export function CheckoutView() {
     setBusy(true); setError(''); setCompletion(null)
     try {
       const csrf = await csrfToken()
-      intentKey.current ??= crypto.randomUUID()
+      intentKey.current ??= sessionStorage.getItem('bg-checkout-intent') ?? crypto.randomUUID()
+      sessionStorage.setItem('bg-checkout-intent', intentKey.current)
       const response = await fetch('/api/v1/checkout/complete', {
         method: 'POST', headers: { 'content-type': 'application/json', 'x-bg-csrf-token': csrf,
           'idempotency-key': intentKey.current }, body: JSON.stringify({ reviewToken: review.reviewToken }),
         cache: 'no-store',
       })
-      const payload = await response.json()
+      let payload = await response.json()
       if (!response.ok) {
         if (payload.error?.code === 'CART_CHANGED') {
           setReview(null); setCompletion(null); setSelected(''); intentKey.current = null
+          sessionStorage.removeItem('bg-checkout-intent')
           const latestCart = await fetch('/api/v1/cart', { cache: 'no-store' })
           if (latestCart.ok) setCart((await latestCart.json()).data as CartSnapshot)
         }
@@ -160,8 +200,24 @@ export function CheckoutView() {
           ? 'Giỏ hàng đã thay đổi. Hãy kiểm tra lại tổng tiền trước khi xác nhận.'
           : 'Chưa thể hoàn tất đơn; bản xem lại có thể đã hết hạn.')
       }
-      if (response.status === 202) setCompletion({ status: 'pending' })
-      else setCompletion({ status: 'succeeded', orderReference: payload.data.orderReference })
+      if (response.status === 202) {
+        for (let attempt = 0; attempt < 10; attempt += 1) {
+          await new Promise((resolve) => window.setTimeout(resolve, 1000))
+          const statusResponse = await fetch(`/api/v1/checkout/complete/${intentKey.current}`, {
+            cache: 'no-store', signal: AbortSignal.timeout(5000),
+          })
+          if (statusResponse.status === 202) continue
+          if (!statusResponse.ok) break
+          payload = await statusResponse.json()
+          if (payload.data?.status === 'succeeded') break
+          if (payload.data?.status === 'failed') throw new Error('Yêu cầu hoàn tất đã thất bại; hãy kiểm tra lại giỏ hàng trước khi thử lại.')
+        }
+      }
+      if (payload.data?.status === 'succeeded') {
+        setCompletion({ status: 'succeeded', orderReference: payload.data.orderReference })
+        intentKey.current = null
+        sessionStorage.removeItem('bg-checkout-intent')
+      } else setCompletion({ status: 'pending' })
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Chưa thể hoàn tất đơn hàng.')
     } finally { setBusy(false) }

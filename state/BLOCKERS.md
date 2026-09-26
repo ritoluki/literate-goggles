@@ -1,6 +1,6 @@
 # Blockers
 
-Hiện không có blocker môi trường/kỹ thuật bên ngoài. T015–T021 hoàn tất; T017–T022 vertical slice đã push; T022 đang triển khai. AT-22 distinct-key concurrency đã PASS local; durable workflow recovery/crash và status polling còn chưa triển khai/kiểm chứng (không coi là blocker dừng việc); runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
+Không có blocker dịch vụ/API key bên ngoài. T022 đang triển khai; AT-20 và AT-22 đã PASS trên real local stack. Owner-scoped status route/polling đã code, lint/typecheck/build PASS nhưng chưa integration-verify: sandbox hiện từ chối Docker named pipe (`permission denied ... docker_engine`), yêu cầu quyền nâng cao bị hệ thống review từ chối; không được ghi PASS. Durable crash-window recovery/AT-24 và inventory race/AT-15 vẫn còn việc. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
 
 ## Blocker đã giải quyết
 
