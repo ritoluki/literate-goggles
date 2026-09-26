@@ -13,6 +13,8 @@ import {
   updateCartWorkflow,
 } from '@medusajs/medusa/core-flows'
 import { cartSnapshot } from '../cart/cart'
+import { COMMERCE_IDENTITY_MODULE } from '../modules/commerce-identity'
+import type CommerceIdentityService from '../modules/commerce-identity/service'
 
 function amount(value: unknown): number {
   if (value instanceof BigNumber) return value.numeric
@@ -23,6 +25,8 @@ function amount(value: unknown): number {
 export default async function verifyDemoShipping({ container }: ExecArgs) {
   assert(['demo', 'test'].includes(process.env.APP_MODE ?? ''), 'Synthetic shipping test is local-only')
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
+  const identity = container.resolve<CommerceIdentityService>(COMMERCE_IDENTITY_MODULE)
+  const workflowEngine = container.resolve<any>(Modules.WORKFLOW_ENGINE)
   const { data: regions } = await query.graph({
     entity: 'region', fields: ['id', 'name', 'currency_code', 'payment_providers.id'],
   })
@@ -132,8 +136,21 @@ export default async function verifyDemoShipping({ container }: ExecArgs) {
     assert(canceledOrders[0]?.canceled_at, 'Synthetic order must be canceled after test')
   }
   const { data: reviewFixtureOrders } = await query.graph({
-    entity: 'order', fields: ['id', 'canceled_at'], filters: { email: 'review-fixture@invalid.example' },
+    entity: 'order', fields: ['id', 'canceled_at', 'created_at'], filters: { email: 'review-fixture@invalid.example' },
   })
+  const newestFixture = reviewFixtureOrders.reduce<typeof reviewFixtureOrders[number] | null>((newest, fixture) =>
+    !newest || new Date(fixture.created_at).getTime() > new Date(newest.created_at).getTime() ? fixture : newest, null)
+  if (newestFixture) {
+    const completions = await identity.listCartCompletions({ order_id: newestFixture.id })
+    assert.equal(completions.length, 1, 'The latest synthetic checkout must have one durable cart ledger')
+    assert(completions[0].workflow_transaction_id,
+      'Checkout ledger must store the Medusa workflow transaction ID for recovery diagnostics')
+    const executions = await workflowEngine.listWorkflowExecutions({
+      workflow_id: 'complete-checkout', transaction_id: completions[0].workflow_transaction_id,
+    })
+    assert(executions.some((execution: { state: string }) => execution.state === 'done'),
+      'The durable checkout workflow transaction must be queryable as done in Medusa workflow engine')
+  }
   for (const fixture of reviewFixtureOrders) {
     if (!fixture.canceled_at) await cancelOrderWorkflow(container).run({ input: { order_id: fixture.id } })
   }

@@ -10,7 +10,7 @@ import type CommerceIdentityService from '../modules/commerce-identity/service'
 type Input = { cart_id: string; session_id: string; channel_id: string; idempotency_key: string; review_token: string }
 type Prepared = { requestId: string; completionId: string }
 
-const prepareCheckoutStep = createStep('prepare-checkout', async (input: Input, { container }) => {
+const prepareCheckoutStep = createStep('prepare-checkout', async (input: Input, { container, transactionId, idempotencyKey }) => {
   const identity = container.resolve<CommerceIdentityService>(COMMERCE_IDENTITY_MODULE)
   const query = container.resolve<any>(ContainerRegistrationKeys.QUERY)
   const operation = 'checkout.complete'
@@ -55,11 +55,14 @@ const prepareCheckoutStep = createStep('prepare-checkout', async (input: Input, 
   if (tokenStatus !== 'valid') throw new MedusaError(MedusaError.Types.INVALID_DATA, 'REVIEW_INVALID')
 
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  const idempotencyTransactionId = typeof idempotencyKey === 'string'
+    ? idempotencyKey.split(':')[1] || null : null
+  const workflowTransactionId = transactionId ?? idempotencyTransactionId
   const requestRecord = request ?? await identity.createIdempotencyRequests({ session_id: input.session_id,
     key: input.idempotency_key, operation, request_hash: requestHash, result_pointer: null,
     status: 'processing', expires_at: expiresAt })
   const completionRecord = completion ?? await identity.createCartCompletions({ cart_id: input.cart_id,
-    session_id: input.session_id, status: 'processing', workflow_transaction_id: null,
+    session_id: input.session_id, status: 'processing', workflow_transaction_id: workflowTransactionId,
     order_id: null, cart_fingerprint: snapshot.revision })
   return new StepResponse<Prepared>({ requestId: requestRecord.id, completionId: completionRecord.id }, {
     requestId: requestRecord.id, completionId: completionRecord.id,
@@ -90,7 +93,7 @@ const persistOrderStep = createStep('persist-order', async (input: {
   return new StepResponse({ status: 'succeeded' as const, orderReference: String(order.display_id) })
 })
 
-export const completeCheckoutWorkflow = createWorkflow('complete-checkout', (input: Input) => {
+export const completeCheckoutWorkflow = createWorkflow({ name: 'complete-checkout', store: true, retentionTime: 24 * 60 * 60 }, (input: Input) => {
   acquireLockStep({ key: input.cart_id, timeout: 5, ttl: 120 })
   const prepared = prepareCheckoutStep(input)
   const order = completeCartWorkflow.runAsStep({ input: { id: input.cart_id } })

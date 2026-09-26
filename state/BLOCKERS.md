@@ -1,6 +1,6 @@
 # Blockers
 
-Không có blocker dịch vụ/API key bên ngoài. T022 đang triển khai; AT-20 và AT-22 đã PASS trên real local stack. Owner-scoped status route/polling đã code, lint/typecheck/build PASS nhưng chưa integration-verify: sandbox hiện từ chối Docker named pipe (`permission denied ... docker_engine`), yêu cầu quyền nâng cao bị hệ thống review từ chối; không được ghi PASS. Durable crash-window recovery/AT-24 và inventory race/AT-15 vẫn còn việc. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
+Không có blocker môi trường hoặc dịch vụ/API key đang chặn công việc. T022 đang triển khai; AT-20/AT-22, owner-scoped status và lưu/truy vấn workflow execution 24h đã PASS trên real local stack. Crash-window restart behavior/AT-24, timeout fault injection/AT-25 và inventory race/AT-15 vẫn cần kiểm chứng. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
 
 ## Blocker đã giải quyết
 
