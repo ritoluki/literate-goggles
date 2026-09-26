@@ -15,6 +15,7 @@ import {
 import { cartSnapshot } from '../cart/cart'
 import { COMMERCE_IDENTITY_MODULE } from '../modules/commerce-identity'
 import type CommerceIdentityService from '../modules/commerce-identity/service'
+import { reconcileCheckoutCompletion } from '../checkout/reconcile-completion'
 
 function amount(value: unknown): number {
   if (value instanceof BigNumber) return value.numeric
@@ -141,15 +142,46 @@ export default async function verifyDemoShipping({ container }: ExecArgs) {
   const newestFixture = reviewFixtureOrders.reduce<typeof reviewFixtureOrders[number] | null>((newest, fixture) =>
     !newest || new Date(fixture.created_at).getTime() > new Date(newest.created_at).getTime() ? fixture : newest, null)
   if (newestFixture) {
-    const completions = await identity.listCartCompletions({ order_id: newestFixture.id })
-    assert.equal(completions.length, 1, 'The latest synthetic checkout must have one durable cart ledger')
-    assert(completions[0].workflow_transaction_id,
+    const completionRecords = await identity.listCartCompletions({})
+    let matchingCompletion: (typeof completionRecords)[number] | undefined
+    let matchingExecution: any
+    for (const candidate of completionRecords) {
+      if (!candidate.workflow_transaction_id) continue
+      const [candidateExecution] = await workflowEngine.listWorkflowExecutions({
+        workflow_id: 'complete-checkout', transaction_id: candidate.workflow_transaction_id,
+      })
+      const invoke = (candidateExecution?.context as { data?: { invoke?: Record<string, any> } } | null)?.data?.invoke ?? {}
+      if (invoke['complete-cart-as-step']?.output?.output?.id === newestFixture.id) {
+        matchingCompletion = candidate
+        matchingExecution = candidateExecution
+        break
+      }
+    }
+    assert(matchingCompletion, 'The latest synthetic checkout must have one durable cart ledger')
+    assert(matchingCompletion.workflow_transaction_id,
       'Checkout ledger must store the Medusa workflow transaction ID for recovery diagnostics')
-    const executions = await workflowEngine.listWorkflowExecutions({
-      workflow_id: 'complete-checkout', transaction_id: completions[0].workflow_transaction_id,
-    })
+    const executions = [matchingExecution]
+    const execution = matchingExecution
+    const invoke = (execution?.context as { data?: { invoke?: Record<string, any> } } | null)?.data?.invoke ?? {}
+    assert.equal(invoke['complete-cart-as-step']?.output?.output?.id, newestFixture.id,
+      'Retained workflow context must expose the committed Medusa order ID for ledger reconciliation')
+    assert(typeof invoke['prepare-checkout']?.output?.output?.requestId === 'string',
+      'Retained workflow context must identify its idempotency ledger row')
     assert(executions.some((execution: { state: string }) => execution.state === 'done'),
       'The durable checkout workflow transaction must be queryable as done in Medusa workflow engine')
+    const requestId = invoke['prepare-checkout'].output.output.requestId as string
+    const [request] = await identity.listIdempotencyRequests({ id: requestId })
+    assert(request, 'Synthetic checkout execution must link to its idempotency row')
+    await identity.updateCartCompletions({ id: matchingCompletion.id, status: 'reconciling', order_id: null,
+      last_error_code: 'COMPLETION_RESULT_UNKNOWN' })
+    await identity.updateIdempotencyRequests({ id: request.id, status: 'processing', result_pointer: null })
+    const recovered = await reconcileCheckoutCompletion(container, { ...matchingCompletion,
+      status: 'reconciling', order_id: null })
+    assert.equal(recovered?.orderId, newestFixture.id,
+      'Reconciliation must restore the same committed Medusa order without completing the cart again')
+    const [reconciledLedger] = await identity.listCartCompletions({ id: matchingCompletion.id })
+    assert.equal(reconciledLedger.status, 'succeeded', 'Reconciliation must durably settle the cart ledger')
+    console.log('PASS checkout reconciliation: restored the same completed Medusa order from retained workflow context after ledger uncertainty')
   }
   for (const fixture of reviewFixtureOrders) {
     if (!fixture.canceled_at) await cancelOrderWorkflow(container).run({ input: { order_id: fixture.id } })

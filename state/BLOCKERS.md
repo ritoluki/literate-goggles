@@ -1,6 +1,6 @@
 # Blockers
 
-Không có blocker môi trường hoặc dịch vụ/API key đang chặn công việc. T022 đang triển khai; AT-20/AT-22, owner-scoped status và lưu/truy vấn workflow execution 24h đã PASS trên real local stack. Crash-window restart behavior/AT-24, timeout fault injection/AT-25 và inventory race/AT-15 vẫn cần kiểm chứng. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
+Không có blocker môi trường, dịch vụ hay API key. T022 đã có recovery job + owner-poll reconciliation; `pnpm verify` PASS, gồm synthetic ledger-loss recovery về cùng Medusa order. Còn thiếu hard process kill/restart AT-24, upstream timeout fault injection AT-25 và last-unit inventory race AT-15. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
 
 ## Blocker đã giải quyết
 
