@@ -25,6 +25,7 @@
     "verify:catalog-freshness": "medusa exec ./src/scripts/verify-catalog-freshness.ts",
     "verify:session-rate-limit": "medusa exec ./src/scripts/verify-session-rate-limit.ts",
     "verify:demo-shipping": "medusa exec ./src/scripts/verify-demo-shipping.ts",
+    "verify:inventory-race": "medusa exec ./src/scripts/verify-inventory-race.ts",
     "test:integration:http": "node ./scripts/run-jest.mjs integration:http",
     "test:integration:modules": "node ./scripts/run-jest.mjs integration:modules",
     "test:unit": "node ./scripts/run-jest.mjs unit"

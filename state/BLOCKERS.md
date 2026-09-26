@@ -1,6 +1,8 @@
 # Blockers
 
-Không có blocker môi trường, dịch vụ hay API key. T022 đã có recovery job + owner-poll reconciliation; `pnpm verify` PASS cho synthetic ledger-loss recovery và cùng order. AT-25 client-timeout/poll/replay integration PASS. Còn thiếu hard process kill/restart AT-24 và last-unit inventory race AT-15. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
+Update 2026-09-26: AT-15 last-unit inventory race is PASS on the local real stack. T022 still has only AT-24 hard process kill/restart evidence pending.
+
+Không có blocker môi trường, dịch vụ hay API key. T022 đã có recovery job + owner-poll reconciliation; `pnpm verify` PASS cho synthetic ledger-loss recovery và cùng order. AT-15 last-unit inventory race và AT-25 client-timeout/poll/replay đều PASS. Còn thiếu hard process kill/restart AT-24; lần thử fault-injection trả 503 trước khi marker xác nhận, không được ghi nhận PASS. Runtime ngoài local cần `REVIEW_TOKEN_SECRET` riêng, thiếu thì fail-closed.
 
 ## Blocker đã giải quyết
 

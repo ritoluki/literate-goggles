@@ -94,12 +94,14 @@ const persistOrderStep = createStep('persist-order', async (input: {
 })
 
 export const completeCheckoutWorkflow = createWorkflow({ name: 'complete-checkout', store: true, retentionTime: 24 * 60 * 60 }, (input: Input) => {
-  acquireLockStep({ key: input.cart_id, timeout: 5, ttl: 120 })
+  // V1 uses a conservative global checkout lock so competing carts cannot both
+  // pass the stock snapshot before Medusa reserves inventory.
+  acquireLockStep({ key: 'checkout-inventory-reservation', timeout: 30, ttl: 120 })
   const prepared = prepareCheckoutStep(input)
   const order = completeCartWorkflow.runAsStep({ input: { id: input.cart_id } })
   const result = persistOrderStep(transform({ prepared, order }, (data) => ({
     prepared: data.prepared, orderId: data.order.id,
   })))
-  releaseLockStep({ key: input.cart_id })
+  releaseLockStep({ key: 'checkout-inventory-reservation' })
   return new WorkflowResponse(result)
 })

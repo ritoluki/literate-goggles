@@ -2,6 +2,8 @@
 
 **Tất cả task ban đầu là NOT_STARTED.** Dependencies không có nghĩa task trước đã hoàn thành. Mỗi task phải cập nhật status, evidence và actual implementation paths.
 
+Update 2026-09-26: T022 remains IN_PROGRESS. AT-15 and AT-25 PASS; only AT-24 hard process kill/restart is pending. T023 stays NOT_STARTED until T022 acceptance is complete.
+
 Không hỏi owner phê duyệt từng task local. T032 có thể BLOCKED bởi G3 nhưng không chặn LOCAL_READY/STAGING_READY/shop rules-only. T038 trở đi cần các gate tương ứng. T050 là nhiệm vụ vận hành được phân công thật, không lời hứa agent tự chạy nền.
 
 | ID | Phase | Công việc | Phụ thuộc | Đầu ra | Điều kiện đạt | Requirements | Acceptance | Status |
@@ -27,7 +29,7 @@ Không hỏi owner phê duyệt từng task local. T032 có thể BLOCKED bởi 
 | T019 | P3 | Policies/demo banner/SEO/a11y cơ bản | T018 | Draft policy routes; robots/sitemap metadata | Demo facts labeled; staging noindex | FR-15,FR-16,FR-19 | AT-44,AT-45,AT-46,AT-60 | DONE (policy/legal approval remains G7) |
 | T020 | P4 | Guest address/shipping checkout | T014,T018 | Address forms/backend schemas | Unsupported address blocked; totals authoritative | FR-06,FR-07 | AT-19 | DONE |
 | T021 | P4 | Review fingerprint/signing/token expiry | T020 | Backend review flow; BFF forwarding | Tamper/expiry/cart-change rejected; no PII token | FR-08 | AT-13 (review issuance/binding),AT-53 (complete-path deferred T022) | DONE |
-| T022 | P4 | Complete cart locking/ledger/recovery | T021 | Core workflow composition; recovery job/status API | 10parallel/2keys/commit crash→1order | FR-08,FR-09 | AT-13 (complete revalidation),AT-15,AT-20,AT-21,AT-22,AT-23,AT-24,AT-25,AT-53 | IN_PROGRESS (AT-25 PASS; hard restart/AT-15 stock race pending) |
+| T022 | P4 | Complete cart locking/ledger/recovery | T021 | Core workflow composition; recovery job/status API | 10parallel/2keys/commit crash→1order | FR-08,FR-09 | AT-13 (complete revalidation),AT-15,AT-20,AT-21,AT-22,AT-23,AT-24,AT-25,AT-53 | IN_PROGRESS (AT-15/AT-25 PASS; hard restart AT-24 pending) |
 | T023 | P4 | Order confirmation/owner grant + pending UI | T022 | Confirmation/status routes and pages | No cross-session lookup; no fake success | FR-08,FR-09 | AT-08,AT-25,AT-30 | NOT_STARTED |
 | T024 | P4 | Email notification/outbox/provider adapter | T023 | Templates; delivery ledger; bounded retry | Order persists when email fails; unknown-send reconciled | FR-10 | AT-27,AT-28,AT-29 | NOT_STARTED |
 | T025 | P4 | Checkout regression end-to-end | T024 | Evidence P4 suite | Money/stock/shipping/COD assertions with real backend | FR-04–FR-10 | AT-13–AT-30 | NOT_STARTED |

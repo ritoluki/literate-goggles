@@ -164,6 +164,18 @@ try {
   })
   if (shipping.error) throw shipping.error
   if (shipping.status !== 0) throw new Error('Demo shipping/COD checks failed')
+  const inventoryCommand = process.platform === 'win32' ? 'cmd.exe' : 'pnpm'
+  const inventoryArgs = process.platform === 'win32'
+    ? ['/d', '/c', 'pnpm.cmd', '--filter', '@ban-gon/backend', 'run', 'verify:inventory-race']
+    : ['--filter', '@ban-gon/backend', 'run', 'verify:inventory-race']
+  const inventory = spawnSync(inventoryCommand, inventoryArgs, {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+    env: authEnv,
+  })
+  if (inventory.error) throw inventory.error
+  if (inventory.status !== 0) throw new Error('Last-unit inventory race checks failed')
+
   process.exitCode = 0
 } catch (error) {
   console.error(`FAIL integration runner: ${error.message}`)
