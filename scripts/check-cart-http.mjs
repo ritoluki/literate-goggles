@@ -255,24 +255,21 @@ assert.equal(incompleteComplete.status, 409, 'checkout without address/shipping/
 assert.equal((await incompleteComplete.json()).error.code, 'CHECKOUT_INCOMPLETE')
 const placeOrderKey = randomUUID()
 const secondTabKey = randomUUID()
-const completeFromTab = (key) => fetch(origin + '/api/v1/checkout/complete', {
+const completeFromTab = (key, signal = AbortSignal.timeout(45_000)) => fetch(origin + '/api/v1/checkout/complete', {
   method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
     'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': key },
-  body: JSON.stringify({ reviewToken: changedReview.reviewToken }), signal: AbortSignal.timeout(45_000),
+  body: JSON.stringify({ reviewToken: changedReview.reviewToken }), signal,
 })
 const distinctKeyRace = await Promise.all([completeFromTab(placeOrderKey), completeFromTab(secondTabKey)])
 assert(distinctKeyRace.every((response) => [200, 201].includes(response.status)),
   'parallel tabs with different idempotency keys must converge without a duplicate order')
 const distinctKeyResults = await Promise.all(distinctKeyRace.map(async (response) => (await response.json()).data))
-const placeOrder = distinctKeyRace.find((response) => response.status === 201)
-assert(placeOrder, 'one distinct-key request must perform the explicit COD completion')
-const placedByIndex = distinctKeyRace.findIndex((response) => response.status === 201)
-const successfulIntentKey = [placeOrderKey, secondTabKey][placedByIndex]
 const placed = distinctKeyResults.find((result) => result.status === 'succeeded')
 assert.equal(placed.status, 'succeeded')
 assert(placed.orderReference)
 assert(distinctKeyResults.every((result) => result.orderReference === placed.orderReference),
   'parallel distinct-key tabs must converge on the same Medusa order')
+const successfulIntentKey = [placeOrderKey, secondTabKey][distinctKeyRace.findIndex((response) => response.status === 201)]
 const intentStatus = await fetch(`${origin}/api/v1/checkout/complete/${successfulIntentKey}`, {
   headers: { cookie: reviewSession.cookie }, signal: AbortSignal.timeout(20_000),
 })
@@ -282,6 +279,65 @@ const foreignIntentStatus = await fetch(`${origin}/api/v1/checkout/complete/${su
   headers: { cookie: b.cookie }, signal: AbortSignal.timeout(20_000),
 })
 assert.equal(foreignIntentStatus.status, 404, 'another session cannot discover an order from an intent key')
+
+const timeoutSession = await newSession()
+assert.equal((await add(timeoutSession, { variantId: variantIdValue, quantity: 1 })).status, 200)
+const timeoutAddress = await fetch(origin + '/api/v1/checkout/address', {
+  method: 'PUT', headers: { origin, cookie: timeoutSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': timeoutSession.csrf }, body: JSON.stringify({ email: 'review-fixture@invalid.example',
+    address: { firstName: 'Demo', lastName: 'Timeout', phone: '+84900000000', countryCode: 'vn',
+      province: 'TP Há»“ ChÃ­ Minh', city: 'TP Há»“ ChÃ­ Minh', address1: '123 ÄÆ°á»ng Kiá»ƒm thá»­' } }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(timeoutAddress.status, 200)
+const timeoutOptionsResponse = await fetch(origin + '/api/v1/checkout/shipping-options', {
+  headers: { cookie: timeoutSession.cookie }, signal: AbortSignal.timeout(30_000),
+})
+assert.equal(timeoutOptionsResponse.status, 200)
+const timeoutOption = (await timeoutOptionsResponse.json()).data.shippingOptions[0]
+const timeoutShipping = await fetch(origin + '/api/v1/checkout/shipping', {
+  method: 'PUT', headers: { origin, cookie: timeoutSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': timeoutSession.csrf }, body: JSON.stringify({ optionId: timeoutOption.id }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(timeoutShipping.status, 200)
+const timeoutReviewResponse = await fetch(origin + '/api/v1/checkout/review', {
+  method: 'POST', headers: { origin, cookie: timeoutSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': timeoutSession.csrf }, body: JSON.stringify({ method: 'cod' }),
+  signal: AbortSignal.timeout(30_000),
+})
+assert.equal(timeoutReviewResponse.status, 200)
+const timeoutReview = (await timeoutReviewResponse.json()).data
+const timeoutKey = randomUUID()
+const timeoutAttempt = await fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: timeoutSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': timeoutSession.csrf, 'idempotency-key': timeoutKey },
+  body: JSON.stringify({ reviewToken: timeoutReview.reviewToken }), signal: AbortSignal.timeout(250),
+}).then((response) => response).catch((error) => {
+  assert(['TimeoutError', 'AbortError'].includes(error.name), 'completion client timeout must be an abort/timeout')
+  return null
+})
+if (timeoutAttempt) assert([200, 201].includes(timeoutAttempt.status),
+  'a completion response arriving before client timeout must be successful')
+let timeoutIntentResponse
+for (let attempt = 0; attempt < 30; attempt++) {
+  timeoutIntentResponse = await fetch(`${origin}/api/v1/checkout/complete/${timeoutKey}`, {
+    headers: { cookie: timeoutSession.cookie }, signal: AbortSignal.timeout(20_000),
+  })
+  if (timeoutIntentResponse.status !== 202) break
+  await new Promise((resolve) => setTimeout(resolve, 200))
+}
+assert.equal(timeoutIntentResponse.status, 200,
+  'timed-out completion must settle through owner-scoped intent polling')
+const timeoutPlaced = (await timeoutIntentResponse.json()).data
+assert(timeoutPlaced.orderReference, 'timed-out owner poll must eventually return the order reference')
+const timeoutReplay = await fetch(origin + '/api/v1/checkout/complete', {
+  method: 'POST', headers: { origin, cookie: timeoutSession.cookie, 'content-type': 'application/json',
+    'x-bg-csrf-token': timeoutSession.csrf, 'idempotency-key': timeoutKey },
+  body: JSON.stringify({ reviewToken: timeoutReview.reviewToken }), signal: AbortSignal.timeout(30_000),
+})
+assert.equal(timeoutReplay.status, 200, 'retry after client timeout must replay, not create another order')
+assert.equal((await timeoutReplay.json()).data.orderReference, timeoutPlaced.orderReference)
 const replayRequests = await Promise.all(Array.from({ length: 10 }, () => fetch(origin + '/api/v1/checkout/complete', {
   method: 'POST', headers: { origin, cookie: reviewSession.cookie, 'content-type': 'application/json',
     'x-bg-csrf-token': reviewSession.csrf, 'idempotency-key': placeOrderKey },
@@ -300,5 +356,5 @@ const payloadMismatch = await fetch(origin + '/api/v1/checkout/complete', {
 assert.equal(payloadMismatch.status, 409, 'same idempotency key with a different review payload must conflict')
 assert.equal((await payloadMismatch.json()).error.code, 'IDEMPOTENCY_CONFLICT')
 console.log('PASS checkout review HTTP: guest address, Medusa shipping quote/selection and COD payment session; signed five-minute token binds VND total without PII')
-console.log('PASS checkout completion HTTP: stale review rejected; parallel distinct-key tabs converge on one Medusa COD order; owner-only intent poll, ten parallel same-key replays, and payload mismatch guards pass')
+console.log('PASS checkout completion HTTP: stale review rejected; parallel distinct-key tabs converge; client timeout resolves through owner polling/replay; ten parallel same-key replays and payload mismatch guards pass')
 console.log('PASS cart HTTP: Medusa VND add/update/remove and 10% promotion; refresh, locked quantity race, CSRF/Origin, isolated sessions, backend 429 quota')
